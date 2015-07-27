@@ -102,7 +102,7 @@ public class Ceeql implements AutoCloseable {
             return CeeqlError.errorType(e.getClass().getSimpleName(), e.getMessage());
         }
     }
-    
+
     public String insertBatch(String sql, ArrayList<Map<String, String>> argList) {
 
         log.info("Batch Insert: " + sql);
