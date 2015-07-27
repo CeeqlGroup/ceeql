@@ -2,7 +2,7 @@ ceeql
 
 ========
 
-Maps SQL to JSON
+Maps SQL Queries to JSON
 
 ## SELECT all query
 
