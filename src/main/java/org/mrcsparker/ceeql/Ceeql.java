@@ -1,6 +1,8 @@
 package org.mrcsparker.ceeql;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.Template;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.logging.log4j.LogManager;
@@ -9,6 +11,7 @@ import org.skife.jdbi.v2.*;
 
 import javax.sql.DataSource;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -53,7 +56,7 @@ public class Ceeql implements AutoCloseable {
     }
 
     public List selectToList(String sql, Map<String, String> args) {
-        Query q = dbiHandle.createQuery(sql);
+        Query q = dbiHandle.createQuery(applySqlTemplate(sql, args));
 
         for (Map.Entry<String, String> arg : args.entrySet()) {
             q.bind(arg.getKey(), arg.getValue());
@@ -63,7 +66,7 @@ public class Ceeql implements AutoCloseable {
     }
 
     public String select(String sql, Map<String, String> args) {
-        Query q = dbiHandle.createQuery(sql);
+        Query q = dbiHandle.createQuery(applySqlTemplate(sql, args));
 
         for (Map.Entry<String, String> arg : args.entrySet()) {
             q.bind(arg.getKey(), arg.getValue());
@@ -77,12 +80,12 @@ public class Ceeql implements AutoCloseable {
     }
 
     public Object selectOneAsObject(String sql, Map<String, String> args) {
-        Query q = createQuery(sql, args);
+        Query q = createQuery(applySqlTemplate(sql, args), args);
         return q.first();
     }
 
     public String selectOne(String sql, Map<String, String> args) {
-        Query q = createQuery(sql, args);
+        Query q = createQuery(applySqlTemplate(sql, args), args);
 
         try {
             return generateJson(q.first());
@@ -92,17 +95,21 @@ public class Ceeql implements AutoCloseable {
     }
 
     public String insert(String sql, Map<String, String> args) {
-        GeneratedKeys q = createStatement(sql, args);
+        GeneratedKeys q = createStatement(applySqlTemplate(sql, args), args);
         try {
             return generateJson(q.first());
         } catch (Exception e) {
             return CeeqlError.errorType(e.getClass().getSimpleName(), e.getMessage());
         }
     }
-
+    
     public String insertBatch(String sql, ArrayList<Map<String, String>> argList) {
 
         log.info("Batch Insert: " + sql);
+
+        for (Map<String, String> args : argList) {
+            sql = applySqlTemplate(sql, args);
+        }
 
         PreparedBatch q = dbiHandle.prepareBatch(sql);
 
@@ -122,7 +129,7 @@ public class Ceeql implements AutoCloseable {
     }
 
     public String update(String sql, Map<String, String> args) {
-        GeneratedKeys q = createStatement(sql, args);
+        GeneratedKeys q = createStatement(applySqlTemplate(sql, args), args);
         try {
             return generateJson(q.first());
         } catch (Exception e) {
@@ -131,7 +138,7 @@ public class Ceeql implements AutoCloseable {
     }
 
     public String delete(String sql, Map<String, String> args) {
-        GeneratedKeys q = createStatement(sql, args);
+        GeneratedKeys q = createStatement(applySqlTemplate(sql, args), args);
         try {
             return generateJson(q.list());
         } catch (Exception e) {
@@ -205,5 +212,15 @@ public class Ceeql implements AutoCloseable {
 
     public String reconnect() {
         return connectToDatabase();
+    }
+
+    private String applySqlTemplate(String sql, Map<String, String> args) {
+        try {
+            Handlebars handlebars = new Handlebars();
+            Template template = handlebars.compileInline(sql);
+            return template.apply(args);
+        } catch (Exception e) {
+            return "";
+        }
     }
 }
