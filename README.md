@@ -1,10 +1,9 @@
-ceeql
+# ceeql
+
+Ceeql is a Java library that maps SQL queries to JSON
 
 [![Build Status](https://travis-ci.org/mrcsparker/ceeql.svg?branch=master)](https://travis-ci.org/mrcsparker/ceeql)
 
-========
-
-Maps SQL Queries to JSON
 
 ## SELECT all query
 
@@ -92,3 +91,24 @@ String result = p.delete(query, args);
 p.close();
 
 ```
+
+## Template language
+
+Ceeql uses Handlebars templates for templating.
+
+```sql
+
+SELECT * FROM products
+WHERE name = :name
+{{#if vendor_id}}
+    AND vendor_id = :vendor_id
+{{/if}}
+
+```
+
+## License
+
+Ceeql is licensed under the GNU LGPL 3.  This means that you can use the library in
+your proprietary applications.  Any changes you make to Ceeql need to be shared with
+the rest of the community.
+
