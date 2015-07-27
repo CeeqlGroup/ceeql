@@ -11,13 +11,13 @@ public class CeeqlMessage implements ICeeqlMessage {
     private long timestamp;
     private String message;
 
-    public CeeqlMessage(String message) {
+    private CeeqlMessage(String message) {
         this.timestamp = new Date().getTime();
         this.message = message;
     }
 
-    public static String message(String message) {
-        CeeqlMessage e = new CeeqlMessage(message);
+    public static String message() {
+        CeeqlMessage e = new CeeqlMessage("Connected");
         return e.toJson();
     }
 
@@ -29,7 +29,7 @@ public class CeeqlMessage implements ICeeqlMessage {
         m.setTimestamp(timestamp);
         m.setMessage(message);
 
-        ArrayList<CeeqlMessageDTO> l = new ArrayList();
+        ArrayList<CeeqlMessageDTO> l = new ArrayList<>();
         l.add(m);
 
         ObjectMapper mapper = new ObjectMapper();

@@ -1,14 +1,7 @@
 package org.mrcsparker.ceeql;
 
-import org.junit.Test;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-
-
-public class CeeqlNestedJsonTest {
+class CeeqlNestedJsonTest {
 
     /*
     // This is a place-setter for the next release.

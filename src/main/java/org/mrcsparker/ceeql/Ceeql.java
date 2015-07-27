@@ -9,7 +9,6 @@ import org.skife.jdbi.v2.*;
 
 import javax.sql.DataSource;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -105,7 +104,6 @@ public class Ceeql implements AutoCloseable {
 
         log.info("Batch Insert: " + sql);
 
-        final ObjectMapper mapper = new ObjectMapper();
         PreparedBatch q = dbiHandle.prepareBatch(sql);
 
         for (Map<String, String> args : argList) {
@@ -198,7 +196,7 @@ public class Ceeql implements AutoCloseable {
             dbiHandle = dbi.open();
 
             this.isConnected = true;
-            return CeeqlMessage.message("Connected");
+            return CeeqlMessage.message();
         } catch (Exception e) {
             this.isConnected = false;
             return CeeqlError.errorType(e.getClass().getSimpleName(), e.getMessage());

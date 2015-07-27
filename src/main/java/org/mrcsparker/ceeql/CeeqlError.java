@@ -11,12 +11,12 @@ public class CeeqlError implements ICeeqlMessage {
     private String errorType;
     private String message;
 
-    public CeeqlError(String message) {
+    private CeeqlError(String message) {
         this.timestamp = new Date().getTime();
         this.message = message;
     }
 
-    public CeeqlError(String errorType, String message) {
+    private CeeqlError(String errorType, String message) {
         this.errorType = errorType;
         this.timestamp = new Date().getTime();
         this.message = message;
@@ -42,7 +42,7 @@ public class CeeqlError implements ICeeqlMessage {
         m.setTimestamp(timestamp);
         m.setMessage(message);
 
-        ArrayList<CeeqlMessageDTO> l = new ArrayList();
+        ArrayList<CeeqlMessageDTO> l = new ArrayList<>();
         l.add(m);
 
         ObjectMapper mapper = new ObjectMapper();

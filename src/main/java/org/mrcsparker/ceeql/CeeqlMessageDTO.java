@@ -1,6 +1,6 @@
 package org.mrcsparker.ceeql;
 
-public class CeeqlMessageDTO {
+class CeeqlMessageDTO {
     private String messageType;
     private String messageSubType;
     private long timestamp;
