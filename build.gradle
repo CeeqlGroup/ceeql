@@ -1,8 +1,56 @@
-apply plugin: 'java'
-apply plugin: 'jacoco'
+plugins {
+    id 'java'
+    id 'maven'
+    id 'maven-publish'
+    id 'jacoco'
+    id "com.jfrog.bintray" version "1.2"
+}
 
 sourceCompatibility = 1.8
 version = '0.8.0'
+group = 'org.mrcsparker'
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.allSource
+    classifier = 'sources'
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {  // Artifacts to publish
+            from components.java
+            artifact sourceJar
+            artifact javadocJar
+        }
+    }
+}
+
+bintray {
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_KEY')
+
+    dryRun = false
+    publish = true
+
+    publications = ['mavenJava']
+
+    pkg {
+        repo = 'maven'         // The repository
+        name = 'ceeql'         // The package
+        desc = 'Utilities to generate a standard toString of a class using Jdk8 features.'
+        websiteUrl = 'https://github.com/mrcsparker/ceeql'
+        issueTrackerUrl = 'https://github.com/mrcsparker/ceeql/issues'
+        vcsUrl = 'https://github.com/mrcsparker/ceeql.git'
+        licenses = ['LGPL-3.0']
+        labels = ['SQL', 'JSON']
+        publicDownloadNumbers = true
+    }
+}
 
 jacoco {
     toolVersion = "0.7.1.201405082137"
@@ -43,3 +91,4 @@ test {
         classDumpFile = file("$buildDir/jacoco/classpathdumps")
     }
 }
+
