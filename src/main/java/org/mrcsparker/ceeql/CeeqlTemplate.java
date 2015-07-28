@@ -6,7 +6,7 @@ import com.github.jknack.handlebars.Template;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class CeeqlTemplate {
+class CeeqlTemplate {
     public static String apply(String s, Map<String, String> args) {
         try {
             Handlebars handlebars = new Handlebars();

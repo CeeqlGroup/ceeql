@@ -52,43 +52,12 @@ public class Ceeql implements AutoCloseable {
         return dbiHandle;
     }
 
-    public List selectToList(String sql, Map<String, String> args) {
-        return new CeeqlSelect(dbiHandle, sql, args).all().toList();
-    }
-
     public CeeqlSelect select(String sql, Map<String, String> args) {
         return new CeeqlSelect(dbiHandle, sql, args);
     }
 
-    public String insert(String sql, Map<String, String> args) {
-        GeneratedKeys q = createStatement(CeeqlTemplate.apply(sql, args), args);
-        try {
-            return generateJson(q.first());
-        } catch (Exception e) {
-            return CeeqlError.errorType(e.getClass().getSimpleName(), e.getMessage());
-        }
-    }
-
-    public String insertBatch(String sql, ArrayList<Map<String, String>> argList) {
-
-        log.info("Batch Insert: " + sql);
-        sql = CeeqlTemplate.apply(sql, argList);
-
-        PreparedBatch q = dbiHandle.prepareBatch(sql);
-
-        for (Map<String, String> args : argList) {
-            PreparedBatchPart part = q.add();
-
-            for (Map.Entry<String, String> arg : args.entrySet()) {
-                part.bind(arg.getKey(), arg.getValue());
-            }
-        }
-
-        try {
-            return generateJson(q.execute());
-        } catch (Exception e) {
-            return CeeqlError.errorType(e.getClass().getSimpleName(), e.getMessage());
-        }
+    public CeeqlInsert insert(String sql, Map<String, String> args) {
+        return new CeeqlInsert(dbiHandle, sql, args);
     }
 
     public String update(String sql, Map<String, String> args) {

@@ -28,7 +28,7 @@ public class CeeqlInsertJsonTest {
         args.put("vendor_id", "4");
         args.put("price", "400.0000");
 
-        output = p.insert(sql, args);
+        output = p.insert(sql, args).toJson();
 
         assertEquals(output,
                 "{\"scope_identity()\":4}");

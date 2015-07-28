@@ -2,7 +2,7 @@ package org.mrcsparker.ceeql;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class CeeqlJson {
+class CeeqlJson {
     public static <T> String generate(T o) {
         final ObjectMapper mapper = new ObjectMapper();
 
