@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class CeeqlError implements ICeeqlMessage {
+class CeeqlError implements ICeeqlMessage {
     private long timestamp;
     private String errorType;
     private String message;
@@ -27,11 +27,15 @@ public class CeeqlError implements ICeeqlMessage {
         return e.toJson();
     }
 
+    public static String error(Exception e) {
+        CeeqlError ceeqlError = new CeeqlError(e.getClass().getSimpleName(), e.getMessage());
+        return ceeqlError.toJson();
+    }
+
     public static String errorType(String errorType, String message) {
         CeeqlError e = new CeeqlError(errorType, message);
         return e.toJson();
     }
-
 
     public String toJson() {
         CeeqlMessageDTO m = new CeeqlMessageDTO();

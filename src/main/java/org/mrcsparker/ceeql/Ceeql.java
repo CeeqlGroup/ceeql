@@ -1,6 +1,5 @@
 package org.mrcsparker.ceeql;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.logging.log4j.LogManager;
@@ -8,8 +7,6 @@ import org.apache.logging.log4j.Logger;
 import org.skife.jdbi.v2.*;
 
 import javax.sql.DataSource;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class Ceeql implements AutoCloseable {
@@ -52,40 +49,24 @@ public class Ceeql implements AutoCloseable {
         return dbiHandle;
     }
 
-    public CeeqlSelect select(String sql, Map<String, String> args) {
-        return new CeeqlSelect(dbiHandle, sql, args);
+    public String selectOne(String sql, Map<String, String> args) {
+        return new CeeqlSelect(dbiHandle, sql, args).first();
     }
 
-    public CeeqlInsert insert(String sql, Map<String, String> args) {
-        return new CeeqlInsert(dbiHandle, sql, args);
+    public String select(String sql, Map<String, String> args) {
+        return new CeeqlSelect(dbiHandle, sql, args).all();
+    }
+
+    public String insert(String sql, Map<String, String> args) {
+        return new CeeqlInsert(dbiHandle, sql, args).exec();
     }
 
     public String update(String sql, Map<String, String> args) {
-        GeneratedKeys q = createStatement(CeeqlTemplate.apply(sql, args), args);
-        try {
-            return generateJson(q.first());
-        } catch (Exception e) {
-            return CeeqlError.errorType(e.getClass().getSimpleName(), e.getMessage());
-        }
+        return new CeeqlUpdate(dbiHandle, sql, args).exec();
     }
 
     public String delete(String sql, Map<String, String> args) {
-        GeneratedKeys q = createStatement(CeeqlTemplate.apply(sql, args), args);
-        try {
-            return generateJson(q.list());
-        } catch (Exception e) {
-            return CeeqlError.errorType(e.getClass().getSimpleName(), e.getMessage());
-        }
-    }
-
-    private <T> String generateJson(T o) {
-        final ObjectMapper mapper = new ObjectMapper();
-
-        try {
-            return mapper.writeValueAsString(o);
-        } catch (Exception e) {
-            return CeeqlError.errorType(e.getClass().getSimpleName(), e.getMessage());
-        }
+        return new CeeqlDelete(dbiHandle, sql, args).exec();
     }
 
     @Override
@@ -94,26 +75,6 @@ public class Ceeql implements AutoCloseable {
             dbiHandle.close();
         }
         this.isConnected = false;
-    }
-
-    private Query createQuery(String sql, Map<String, String> args) {
-        Query q = dbiHandle.createQuery(sql);
-
-        for (Map.Entry<String, String> arg : args.entrySet()) {
-            q.bind(arg.getKey(), arg.getValue());
-        }
-
-        return q;
-    }
-
-    private GeneratedKeys createStatement(String sql, Map<String, String> args) {
-        Update q = dbiHandle.createStatement(sql);
-
-        for (Map.Entry<String, String> arg : args.entrySet()) {
-            q.bind(arg.getKey(), arg.getValue());
-        }
-
-        return q.executeAndReturnGeneratedKeys();
     }
 
     private String connectToDatabase() {

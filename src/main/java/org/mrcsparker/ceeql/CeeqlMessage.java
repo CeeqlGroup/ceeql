@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class CeeqlMessage implements ICeeqlMessage {
+class CeeqlMessage implements ICeeqlMessage {
 
     private long timestamp;
     private String message;

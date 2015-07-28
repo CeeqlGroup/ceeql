@@ -5,7 +5,7 @@ import org.skife.jdbi.v2.util.StringMapper;
 
 import static org.junit.Assert.assertEquals;
 
-public class CeeqlGenericQueryTest {
+public class GenericCeeqlQueryTest {
     @Test
     public void can_run_generic_query() {
         Ceeql p = new Ceeql("org.h2.Driver", "jdbc:h2:mem:test", "username", "password");

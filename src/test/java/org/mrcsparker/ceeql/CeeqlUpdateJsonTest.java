@@ -1,4 +1,4 @@
 package org.mrcsparker.ceeql;
 
-class UpdateJsonTest {
+class CeeqlUpdateJsonTest {
 }

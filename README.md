@@ -1,11 +1,57 @@
-# ceeql
+# Ceeql
 
-Ceeql is a Java library that maps SQL queries to JSON
+Ceeql is a small, simple Java library that maps SQL queries to JSON.
+
+## Technologies used
+
+* JDBC for database support
+* JDBI for queries
+* Handlebars for template language
+* HikariDB for connection pooling
+* JUnit for full test coverage
+
+## Code Status
 
 [![Build Status](https://travis-ci.org/mrcsparker/ceeql.svg?branch=master)](https://travis-ci.org/mrcsparker/ceeql)
 
+## API
 
-## SELECT all query
+Ceeql has a VERY simple API.  It only outputs to JSON - all query results, exceptions, and errors returns back as JSON, which means that the library is very easy to plug into a REST application.
+
+There are very few methods exposed via the API, and every method returns a JSON string.
+
+### Calling the API
+
+```java
+
+// Make a database connection, and open a connection pool
+Seeql p = new Seeql(
+    // jdbc driver
+    "org.h2.Driver",
+    // jdbc url		
+    "jdbc:h2:mem:test",		
+    "username", 
+    "password");
+
+// Create a argument list that you want to pass to the query
+Map<String, String> args = new HashMap<String, String>();
+args.put("name", "foo");
+
+// Write the query.  Colons signify arguments
+String query = "SELECT * FROM products WHERE name = :name"
+
+// Call the query.  The query returns as a JSON string
+String result = p.select(query, args);
+
+// Close the connection pool
+p.close();
+
+// If you want to re-open the connection:
+p.reconnect();
+
+```
+
+### SELECT all query
 
 ```java
 
@@ -22,7 +68,7 @@ p.close();
 
 ```
 
-## SELECT one query
+### SELECT one query
 
 ```java
 
@@ -39,7 +85,7 @@ p.close();
 
 ```
 
-## INSERT query
+### INSERT query
 
 ```java
 
@@ -57,7 +103,7 @@ p.close();
 
 ```
 
-## UPDATE query
+### UPDATE query
 
 ```java
 
@@ -75,7 +121,7 @@ p.close();
 
 ```
 
-## DELETE query
+### DELETE query
 
 ```java
 
