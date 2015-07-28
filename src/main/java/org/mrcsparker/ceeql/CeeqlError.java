@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.Date;
 
 class CeeqlError implements ICeeqlMessage {
-    private long timestamp;
+    private final long timestamp;
     private String errorType;
-    private String message;
+    private final String message;
 
     private CeeqlError(String message) {
         this.timestamp = new Date().getTime();

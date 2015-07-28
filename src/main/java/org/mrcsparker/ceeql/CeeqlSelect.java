@@ -6,8 +6,8 @@ import java.util.Map;
 
 class CeeqlSelect {
 
-    private org.skife.jdbi.v2.Query query;
-    private Map<String, String> args;
+    private final org.skife.jdbi.v2.Query query;
+    private final Map<String, String> args;
 
     public CeeqlSelect(Handle dbiHandle, String sql, Map<String, String> args) {
         this.query = CeeqlQuery.build(dbiHandle, CeeqlTemplate.apply(sql, args), args);

@@ -6,14 +6,10 @@ import java.util.Map;
 
 abstract class CeeqlAction {
 
-    protected Handle dbiHandle;
-    protected String sql;
-    protected Map<String, String> args;
-    protected org.skife.jdbi.v2.Update update;
+    protected final Map<String, String> args;
+    protected final org.skife.jdbi.v2.Update update;
 
     public CeeqlAction(Handle dbiHandle, String sql, Map<String, String> args) {
-        this.dbiHandle = dbiHandle;
-        this.sql = sql;
         this.args = args;
         this.update = CeeqlQuery.create(dbiHandle, CeeqlTemplate.apply(sql, args), args);
     }

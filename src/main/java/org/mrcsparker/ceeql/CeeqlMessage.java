@@ -8,8 +8,8 @@ import java.util.Date;
 
 class CeeqlMessage implements ICeeqlMessage {
 
-    private long timestamp;
-    private String message;
+    private final long timestamp;
+    private final String message;
 
     private CeeqlMessage(String message) {
         this.timestamp = new Date().getTime();
