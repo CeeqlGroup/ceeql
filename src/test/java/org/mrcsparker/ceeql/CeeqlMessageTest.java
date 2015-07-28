@@ -5,7 +5,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class MessageTest {
+public class CeeqlMessageTest {
     @Test
     public void ceeql_cannot_find_driver_error() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();

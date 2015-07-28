@@ -1,7 +1,7 @@
 package org.mrcsparker.ceeql;
 
 
-class NestedJsonTest {
+class CeeqlNestedJsonTest {
 
     /*
     // This is a place-setter for the next release.
