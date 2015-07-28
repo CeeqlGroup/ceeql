@@ -15,7 +15,7 @@ public class CeeqlDeleteJsonTest {
         String sql = "SELECT * FROM products";
         Map<String, String> args = new HashMap<>();
 
-        String output = p.select(sql, args);
+        String output = p.select(sql, args).all().toJson();
 
         assertEquals(output,
                 "[{\"price\":100.0000,\"vendor_id\":1,\"name\":\"first\",\"id\":1},{\"price\":200.0000,\"vendor_id\":2,\"name\":\"second\",\"id\":2},{\"price\":300.0000,\"vendor_id\":3,\"name\":\"third\",\"id\":3}]");
@@ -31,7 +31,7 @@ public class CeeqlDeleteJsonTest {
         sql = "SELECT * FROM products";
         args = new HashMap<>();
 
-        output = p.select(sql, args);
+        output = p.select(sql, args).all().toJson();
 
         assertEquals(output, "[]");
 
@@ -45,7 +45,7 @@ public class CeeqlDeleteJsonTest {
         String sql = "SELECT * FROM products";
         Map<String, String> args = new HashMap<>();
 
-        String output = p.select(sql, args);
+        String output = p.select(sql, args).all().toJson();
 
         assertEquals(output,
                 "[{\"price\":100.0000,\"vendor_id\":1,\"name\":\"first\",\"id\":1},{\"price\":200.0000,\"vendor_id\":2,\"name\":\"second\",\"id\":2},{\"price\":300.0000,\"vendor_id\":3,\"name\":\"third\",\"id\":3}]");
@@ -62,7 +62,7 @@ public class CeeqlDeleteJsonTest {
         sql = "SELECT * FROM products";
         args = new HashMap<>();
 
-        output = p.select(sql, args);
+        output = p.select(sql, args).all().toJson();
 
         assertEquals(output, "[{\"price\":200.0000,\"vendor_id\":2,\"name\":\"second\",\"id\":2},{\"price\":300.0000,\"vendor_id\":3,\"name\":\"third\",\"id\":3}]");
 

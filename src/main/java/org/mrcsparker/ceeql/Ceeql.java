@@ -56,16 +56,8 @@ public class Ceeql implements AutoCloseable {
         return new CeeqlSelect(dbiHandle, sql, args).all().toList();
     }
 
-    public String select(String sql, Map<String, String> args) {
-        return new CeeqlSelect(dbiHandle, sql, args).all().toJson();
-    }
-
-    public Object selectOneAsObject(String sql, Map<String, String> args) {
-        return new CeeqlSelect(dbiHandle, sql, args).first().toObject();
-    }
-
-    public String selectOne(String sql, Map<String, String> args) {
-        return new CeeqlSelect(dbiHandle, sql, args).first().toJson();
+    public CeeqlSelect select(String sql, Map<String, String> args) {
+        return new CeeqlSelect(dbiHandle, sql, args);
     }
 
     public String insert(String sql, Map<String, String> args) {

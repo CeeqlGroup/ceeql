@@ -45,7 +45,7 @@ public class CeeqlConnectionTest {
         args.put("vendorId1", "1");
         args.put("vendorId2", "2");
 
-        String output = p.select(sql, args);
+        String output = p.select(sql, args).all().toJson();
 
         assertEquals(output,
             "[{\"price\":100.0000,\"vendor_id\":1,\"name\":\"first\",\"id\":1},{\"price\":200.0000,\"vendor_id\":2,\"name\":\"second\",\"id\":2}]");
@@ -55,7 +55,7 @@ public class CeeqlConnectionTest {
         assertFalse(p.isConnected());
 
         ObjectMapper mapper = new ObjectMapper();
-        CeeqlMessageDTO[] dtos = mapper.readValue(p.select(sql, args), CeeqlMessageDTO[].class);
+        CeeqlMessageDTO[] dtos = mapper.readValue(p.select(sql, args).all().toJson(), CeeqlMessageDTO[].class);
 
         assertEquals(dtos[0].getMessageType(), "error");
         assertEquals(dtos[0].getMessageSubType(), "UnableToCreateStatementException");
@@ -69,7 +69,7 @@ public class CeeqlConnectionTest {
 
         assertTrue(p.isConnected());
 
-        output = p.select(sql, args);
+        output = p.select(sql, args).all().toJson();
 
         assertEquals(output,
             "[{\"price\":100.0000,\"vendor_id\":1,\"name\":\"first\",\"id\":1},{\"price\":200.0000,\"vendor_id\":2,\"name\":\"second\",\"id\":2}]");

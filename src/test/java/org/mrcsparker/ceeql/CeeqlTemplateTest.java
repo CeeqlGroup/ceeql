@@ -19,7 +19,7 @@ public class CeeqlTemplateTest {
                 .append("  WHERE id = :id")
                 .append("{{/if}}").toString();
 
-        String output = ceeql.select(sql, new HashMap<>());
+        String output = ceeql.select(sql, new HashMap<>()).all().toJson();
         assertEquals(output,
                 "[{\"price\":100.0000,\"vendor_id\":1,\"name\":\"first\",\"id\":1},{\"price\":200.0000,\"vendor_id\":2,\"name\":\"second\",\"id\":2},{\"price\":300.0000,\"vendor_id\":3,\"name\":\"third\",\"id\":3}]");
 
@@ -27,7 +27,7 @@ public class CeeqlTemplateTest {
         HashMap<String, String> args = new HashMap<>();
         args.put("id", "1");
 
-        output = ceeql.select(sql, args);
+        output = ceeql.select(sql, args).all().toJson();
         assertEquals(output,
                 "[{\"price\":100.0000,\"vendor_id\":1,\"name\":\"first\",\"id\":1}]");
 

@@ -16,7 +16,7 @@ public class CeeqlSelectOneJsonTest {
         String sql = "SELECT * FROM products";
         Map<String, String> args = new HashMap<>();
 
-        String output = p.selectOne(sql, args);
+        String output = p.select(sql, args).first().toJson();
 
         assertEquals(output,
                 "{\"price\":100.0000,\"vendor_id\":1,\"name\":\"first\",\"id\":1}");
@@ -33,7 +33,7 @@ public class CeeqlSelectOneJsonTest {
         Map<String, String> args = new HashMap<>();
         args.put("id", "1");
 
-        String output = p.selectOne(sql, args);
+        String output = p.select(sql, args).first().toJson();
 
         assertEquals(output,
                 "{\"price\":100.0000,\"vendor_id\":1,\"name\":\"first\",\"id\":1}");
@@ -51,7 +51,7 @@ public class CeeqlSelectOneJsonTest {
         args.put("vendorId1", "1");
         args.put("vendorId2", "2");
 
-        String output = p.selectOne(sql, args);
+        String output = p.select(sql, args).first().toJson();
 
         assertEquals(output,
                 "{\"price\":100.0000,\"vendor_id\":1,\"name\":\"first\",\"id\":1}");
