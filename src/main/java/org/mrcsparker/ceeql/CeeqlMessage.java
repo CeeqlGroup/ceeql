@@ -16,8 +16,8 @@ public class CeeqlMessage implements ICeeqlMessage {
         this.message = message;
     }
 
-    public static String message() {
-        CeeqlMessage e = new CeeqlMessage("Connected");
+    public static String message(String message) {
+        CeeqlMessage e = new CeeqlMessage(message);
         return e.toJson();
     }
 

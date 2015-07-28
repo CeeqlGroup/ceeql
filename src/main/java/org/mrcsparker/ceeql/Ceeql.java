@@ -1,8 +1,6 @@
 package org.mrcsparker.ceeql;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.jknack.handlebars.Handlebars;
-import com.github.jknack.handlebars.Template;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.logging.log4j.LogManager;
@@ -11,7 +9,6 @@ import org.skife.jdbi.v2.*;
 
 import javax.sql.DataSource;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -56,42 +53,19 @@ public class Ceeql implements AutoCloseable {
     }
 
     public List selectToList(String sql, Map<String, String> args) {
-        Query q = dbiHandle.createQuery(CeeqlTemplate.apply(sql, args));
-
-        for (Map.Entry<String, String> arg : args.entrySet()) {
-            q.bind(arg.getKey(), arg.getValue());
-        }
-
-        return q.list();
+        return new CeeqlSelect(dbiHandle, sql, args).all().toList();
     }
 
     public String select(String sql, Map<String, String> args) {
-        Query q = dbiHandle.createQuery(CeeqlTemplate.apply(sql, args));
-
-        for (Map.Entry<String, String> arg : args.entrySet()) {
-            q.bind(arg.getKey(), arg.getValue());
-        }
-
-        try {
-            return generateJson(q.list());
-        } catch (Exception e) {
-            return CeeqlError.errorType(e.getClass().getSimpleName(), e.getMessage());
-        }
+        return new CeeqlSelect(dbiHandle, sql, args).all().toJson();
     }
 
     public Object selectOneAsObject(String sql, Map<String, String> args) {
-        Query q = createQuery(CeeqlTemplate.apply(sql, args), args);
-        return q.first();
+        return new CeeqlSelect(dbiHandle, sql, args).first().toObject();
     }
 
     public String selectOne(String sql, Map<String, String> args) {
-        Query q = createQuery(CeeqlTemplate.apply(sql, args), args);
-
-        try {
-            return generateJson(q.first());
-        } catch (Exception e) {
-            return CeeqlError.errorType(e.getClass().getSimpleName(), e.getMessage());
-        }
+        return new CeeqlSelect(dbiHandle, sql, args).first().toJson();
     }
 
     public String insert(String sql, Map<String, String> args) {
@@ -200,7 +174,7 @@ public class Ceeql implements AutoCloseable {
             dbiHandle = dbi.open();
 
             this.isConnected = true;
-            return CeeqlMessage.message();
+            return CeeqlMessage.message("Connected");
         } catch (Exception e) {
             this.isConnected = false;
             return CeeqlError.errorType(e.getClass().getSimpleName(), e.getMessage());

@@ -8,7 +8,7 @@ class CeeqlNestedJsonTest {
     // Nested JSON support
     @Test
     public void lists_dotted_data_as_nested() {
-        Ceeql p = DbCreator.create();
+        Ceeql p = DbCreator.build();
 
         String sql = "SELECT name \"product.name\" FROM products where id = :id";
         Map<String, String> args = new HashMap<>();
