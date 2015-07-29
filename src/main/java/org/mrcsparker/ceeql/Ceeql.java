@@ -35,9 +35,9 @@ public class Ceeql implements AutoCloseable {
         return isConnected;
     }
 
-    public Boolean query(String query) {
+    public Boolean query(String query, Object ... args) {
         try {
-            dbiHandle.execute(query);
+            dbiHandle.execute(query, args);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -59,6 +59,10 @@ public class Ceeql implements AutoCloseable {
 
     public String insert(String sql, Map<String, String> args) {
         return new CeeqlInsert(dbiHandle, sql, args).exec();
+    }
+
+    public String batch(String sql, Map<String, String> args) {
+        return new CeeqlBatch(dbiHandle, sql, args).exec();
     }
 
     public String update(String sql, Map<String, String> args) {
