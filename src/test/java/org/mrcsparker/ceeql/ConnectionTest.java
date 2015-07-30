@@ -5,12 +5,17 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class ConnectionTest {
+
+    private final static Logger log = LogManager.getLogger(ConnectionTest.class);
+
     @Test
     public void isConnected_should_be_false_for_bad_drivers() {
         Ceeql p = new Ceeql("org.test.Driver", "jdbc:h2:mem:test", "username", "password");
@@ -48,14 +53,14 @@ public class ConnectionTest {
         String output = p.select(sql, args);
 
         assertEquals(output,
-            "[{\"price\":100.0000,\"vendor_id\":1,\"name\":\"first\",\"id\":1},{\"price\":200.0000,\"vendor_id\":2,\"name\":\"second\",\"id\":2}]");
+                "[{\"price\":100.0000,\"vendor_id\":1,\"name\":\"first\",\"id\":1},{\"price\":200.0000,\"vendor_id\":2,\"name\":\"second\",\"id\":2}]");
 
         p.close();
 
         assertFalse(p.isConnected());
 
         ObjectMapper mapper = new ObjectMapper();
-        CeeqlMessageDTO[] dtos = mapper.readValue(p.select(sql, args), CeeqlMessageDTO[].class);
+        CeeqlMessageDTO[] dtos = mapper.readValue(p.select("sdfdf", args), CeeqlMessageDTO[].class);
 
         assertEquals(dtos[0].getMessageType(), "error");
         assertEquals(dtos[0].getMessageSubType(), "UnableToCreateStatementException");

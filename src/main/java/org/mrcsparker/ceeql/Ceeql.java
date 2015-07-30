@@ -19,7 +19,7 @@ public class Ceeql implements AutoCloseable {
     private final String password;
 
     private boolean isConnected;
-    private Handle dbiHandle;
+    private DBI dbi;
 
     public Ceeql(String driverName, String url, String username, String password) {
         this.driverName = driverName;
@@ -36,8 +36,8 @@ public class Ceeql implements AutoCloseable {
     }
 
     public Boolean query(String query, Object ... args) {
-        try {
-            dbiHandle.execute(query, args);
+        try(CeeqlHandle handle = new CeeqlHandle(dbi)) {
+            handle.getHandle().execute(query, args);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -46,38 +46,59 @@ public class Ceeql implements AutoCloseable {
     }
 
     public Handle getDbiHandle() {
-        return dbiHandle;
+        return new CeeqlHandle(dbi).getHandle();
     }
 
     public String selectOne(String sql, Map<String, String> args) {
-        return new CeeqlSelect(dbiHandle, sql, args).first();
+        try(CeeqlHandle handle = new CeeqlHandle(dbi)) {
+            return new CeeqlSelect(handle.getHandle(), sql, args).first();
+        } catch (Exception e) {
+            return CeeqlError.error(e);
+        }
     }
 
     public String select(String sql, Map<String, String> args) {
-        return new CeeqlSelect(dbiHandle, sql, args).all();
+        try(CeeqlHandle handle = new CeeqlHandle(dbi)) {
+            return new CeeqlSelect(handle.getHandle(), sql, args).all();
+        } catch (Exception e) {
+            return CeeqlError.error(e);
+        }
     }
 
     public String insert(String sql, Map<String, String> args) {
-        return new CeeqlInsert(dbiHandle, sql, args).exec();
+        try(CeeqlHandle handle = new CeeqlHandle(dbi)) {
+            return new CeeqlInsert(handle.getHandle(), sql, args).exec();
+        } catch (Exception e) {
+            return CeeqlError.error(e);
+        }
     }
 
     public String batch(String sql, Map<String, String> args) {
-        return new CeeqlBatch(dbiHandle, sql, args).exec();
+        try(CeeqlHandle handle = new CeeqlHandle(dbi)) {
+            return new CeeqlBatch(handle.getHandle(), sql, args).exec();
+        } catch (Exception e) {
+            return CeeqlError.error(e);
+        }
     }
 
     public String update(String sql, Map<String, String> args) {
-        return new CeeqlUpdate(dbiHandle, sql, args).exec();
+        try(CeeqlHandle handle = new CeeqlHandle(dbi)) {
+            return new CeeqlUpdate(handle.getHandle(), sql, args).exec();
+        } catch (Exception e) {
+            return CeeqlError.error(e);
+        }
     }
 
     public String delete(String sql, Map<String, String> args) {
-        return new CeeqlDelete(dbiHandle, sql, args).exec();
+        try(CeeqlHandle handle = new CeeqlHandle(dbi)) {
+            return new CeeqlDelete(handle.getHandle(), sql, args).exec();
+        } catch (Exception e) {
+            return CeeqlError.error(e);
+        }
     }
 
     @Override
     public void close() {
-        if (dbiHandle != null) {
-            dbiHandle.close();
-        }
         this.isConnected = false;
     }
 
@@ -96,8 +117,7 @@ public class Ceeql implements AutoCloseable {
 
             DataSource ds = new HikariDataSource(config);
 
-            DBI dbi = new DBI(ds);
-            dbiHandle = dbi.open();
+            this.dbi = new DBI(ds);
 
             this.isConnected = true;
             return CeeqlMessage.message("Connected");

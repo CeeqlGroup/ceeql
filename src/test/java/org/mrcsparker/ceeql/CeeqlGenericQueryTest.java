@@ -1,6 +1,7 @@
 package org.mrcsparker.ceeql;
 
 import org.junit.Test;
+import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.util.StringMapper;
 
 import static org.junit.Assert.assertEquals;
@@ -39,8 +40,12 @@ public class CeeqlGenericQueryTest {
         result = p.query("insert into something (id, name) values (1, 'Brian')");
         assertEquals(result, true);
 
-        String name = p.getDbiHandle().createQuery("select name from something").map(StringMapper.FIRST).first();
+        Handle handle = p.getDbiHandle();
+
+        String name = handle.createQuery("select name from something").map(StringMapper.FIRST).first();
         assertEquals(name, "Brian");
+
+        handle.close();
 
         p.close();
 
