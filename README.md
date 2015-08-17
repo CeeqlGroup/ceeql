@@ -140,7 +140,7 @@ p.close();
 
 ## Template language
 
-Ceeql uses Handlebars templates for templating.
+Ceeql uses Handlebars templates:
 
 ```sql
 
@@ -150,6 +150,33 @@ WHERE name = :name
     AND vendor_id = :vendor_id
 {{/if}}
 
+```
+
+For example, you can loop over data:
+
+```json
+items = [
+    {
+        "name": "product one",
+        "price": 100.00,
+        "vendor_id": 12
+    },
+    {
+        "name": "product two",
+        "price": 200,
+        "vendor_id": 42
+    }
+]
+```
+
+```sql
+#{{each items}}
+    INSERT INTO table (
+        name, price, vendor_id
+    ) VALUES (
+        '{{safe name}}', {{safe price}}, {{safe vendor_id}} 
+    )
+{{/each}}
 ```
 
 ## License

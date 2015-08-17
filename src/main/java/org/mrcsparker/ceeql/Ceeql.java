@@ -5,6 +5,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.skife.jdbi.v2.*;
+import org.skife.jdbi.v2.logging.Log4JLog;
 
 import javax.sql.DataSource;
 import java.util.Map;
@@ -118,6 +119,7 @@ public class Ceeql implements AutoCloseable {
             DataSource ds = new HikariDataSource(config);
 
             this.dbi = new DBI(ds);
+            this.dbi.setSQLLog(new Log4JLog());
 
             this.isConnected = true;
             return CeeqlMessage.message("Connected");
