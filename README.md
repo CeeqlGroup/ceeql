@@ -14,6 +14,33 @@ Ceeql is a small, simple Java library that maps SQL queries to JSON, XML, or CSV
 
 [![Build Status](https://travis-ci.org/mrcsparker/ceeql.svg?branch=master)](https://travis-ci.org/mrcsparker/ceeql)
 
+## Install
+
+### Maven
+
+Add this to your `<repositories>` section:
+
+```xml
+<repository>
+    <snapshots>
+        <enabled>false</enabled>
+    </snapshots>
+    <id>bintray-mrcsparker-maven</id>
+    <name>bintray</name>
+    <url>http://dl.bintray.com/mrcsparker/maven</url>
+</repository>
+```
+
+Add this to your `<dependencies>` section:
+
+```xml
+<dependency>
+    <groupId>org.mrcsparker</groupId>
+    <artifactId>ceeql</artifactId>
+    <version>0.8.4</version>
+</dependency>
+```
+
 ## API
 
 Ceeql has a VERY simple API.  It only outputs to JSON, XML, or CSV - all query results, exceptions, and errors returns back as JSON, XML, or CSV, which means that the library is very easy to plug into a REST application.
