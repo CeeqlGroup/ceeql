@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class CeeqlCsv {
+class CeeqlCsv {
     public static String generate(List<Map<String, Object>> rows) {
         StringWriter writer = new StringWriter();
         CSVWriter csvWriter = new CSVWriter(writer);
@@ -36,6 +36,33 @@ public class CeeqlCsv {
 
         }
 
+        try {
+            csvWriter.writeAll(output);
+            return writer.toString();
+        } catch (Exception e) {
+            return CeeqlError.errorType(e.getClass().getSimpleName(), e.getMessage());
+        }
+    }
+
+    public static String generate(Map<String, Object> row) {
+        StringWriter writer = new StringWriter();
+        CSVWriter csvWriter = new CSVWriter(writer);
+
+        String[] keys = {};
+        ArrayList<String[]> output = new ArrayList<>();
+
+        keys = row.keySet().toArray(new String[] {});
+        Arrays.sort(keys);
+        output.add(keys);
+
+        String[] values = new String[keys.length];
+        int i = 0;
+        for(final String key : keys) {
+            final Object value = row.get(key);
+            values[i++] = (value != null) ? value.toString() : "null";
+        }
+        output.add(values);
+        
         try {
             csvWriter.writeAll(output);
             return writer.toString();
