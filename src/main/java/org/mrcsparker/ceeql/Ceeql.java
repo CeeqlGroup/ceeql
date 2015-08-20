@@ -51,6 +51,10 @@ public class Ceeql implements AutoCloseable {
     }
 
     public String selectOne(String sql, Map<String, String> args) {
+        return selectOneJson(sql, args);
+    }
+
+    public String selectOneJson(String sql, Map<String, String> args) {
         try(CeeqlHandle handle = new CeeqlHandle(dbi)) {
             return new CeeqlSelect(handle.getHandle(), sql, args).first();
         } catch (Exception e) {
@@ -58,9 +62,45 @@ public class Ceeql implements AutoCloseable {
         }
     }
 
+    public String selectOneCsv(String sql, Map<String, String> args) {
+        try(CeeqlHandle handle = new CeeqlHandle(dbi)) {
+            return new CeeqlSelect(handle.getHandle(), sql, args).first(CeeqlOutputType.CSV);
+        } catch (Exception e) {
+            return CeeqlError.error(e);
+        }
+    }
+
+    public String selectOneXml(String sql, Map<String, String> args) {
+        try(CeeqlHandle handle = new CeeqlHandle(dbi)) {
+            return new CeeqlSelect(handle.getHandle(), sql, args).first(CeeqlOutputType.XML);
+        } catch (Exception e) {
+            return CeeqlError.error(e);
+        }
+    }
+
     public String select(String sql, Map<String, String> args) {
+        return selectJson(sql, args);
+    }
+
+    public String selectJson(String sql, Map<String, String> args) {
         try(CeeqlHandle handle = new CeeqlHandle(dbi)) {
             return new CeeqlSelect(handle.getHandle(), sql, args).all();
+        } catch (Exception e) {
+            return CeeqlError.error(e);
+        }
+    }
+
+    public String selectCsv(String sql, Map<String, String> args) {
+        try(CeeqlHandle handle = new CeeqlHandle(dbi)) {
+            return new CeeqlSelect(handle.getHandle(), sql, args).all(CeeqlOutputType.CSV);
+        } catch (Exception e) {
+            return CeeqlError.error(e);
+        }
+    }
+
+    public String selectXml(String sql, Map<String, String> args) {
+        try(CeeqlHandle handle = new CeeqlHandle(dbi)) {
+            return new CeeqlSelect(handle.getHandle(), sql, args).all(CeeqlOutputType.XML);
         } catch (Exception e) {
             return CeeqlError.error(e);
         }
