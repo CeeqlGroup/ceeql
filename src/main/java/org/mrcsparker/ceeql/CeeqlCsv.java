@@ -48,7 +48,7 @@ class CeeqlCsv {
         StringWriter writer = new StringWriter();
         CSVWriter csvWriter = new CSVWriter(writer);
 
-        String[] keys = {};
+        String[] keys;
         ArrayList<String[]> output = new ArrayList<>();
 
         keys = row.keySet().toArray(new String[] {});
@@ -62,7 +62,7 @@ class CeeqlCsv {
             values[i++] = (value != null) ? value.toString() : "null";
         }
         output.add(values);
-        
+
         try {
             csvWriter.writeAll(output);
             return writer.toString();

@@ -14,25 +14,53 @@ class CeeqlSelect {
         this.args = args;
     }
 
-    public String first() {
+    public String first(CeeqlOutputType type) {
         for (Map.Entry<String, String> arg : args.entrySet()) {
             query.bind(arg.getKey(), arg.getValue());
         }
         try {
-            return CeeqlJson.generate(query.first());
+            switch (type) {
+                case JSON:
+                    return CeeqlJson.generate(query.first());
+                case CSV:
+                    return CeeqlCsv.generate(((Map<String, Object>) query.first()));
+                case XML:
+                    return CeeqlXml.generate(query.first());
+                default:
+                    return "";
+            }
+        } catch (Exception e) {
+            return CeeqlError.error(e);
+        }
+    }
+
+    public String first() {
+        return first(CeeqlOutputType.JSON);
+    }
+
+    public String all(CeeqlOutputType type) {
+
+        for (Map.Entry<String, String> arg : args.entrySet()) {
+            query.bind(arg.getKey(), arg.getValue());
+        }
+
+        try {
+            switch (type) {
+                case JSON:
+                    return CeeqlJson.generate(query.list());
+                case CSV:
+                    return CeeqlCsv.generate(query.list());
+                case XML:
+                    return CeeqlXml.generate(query.list());
+                default:
+                    return "";
+            }
         } catch (Exception e) {
             return CeeqlError.error(e);
         }
     }
 
     public String all() {
-        for (Map.Entry<String, String> arg : args.entrySet()) {
-            query.bind(arg.getKey(), arg.getValue());
-        }
-        try {
-            return CeeqlJson.generate(query.list());
-        } catch (Exception e) {
-            return CeeqlError.error(e);
-        }
+        return all(CeeqlOutputType.JSON);
     }
 }
