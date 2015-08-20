@@ -1,6 +1,6 @@
 # Ceeql
 
-Ceeql is a small, simple Java library that maps SQL queries to JSON.
+Ceeql is a small, simple Java library that maps SQL queries to JSON, XML, or CSV.
 
 ## Technologies used
 
@@ -16,9 +16,9 @@ Ceeql is a small, simple Java library that maps SQL queries to JSON.
 
 ## API
 
-Ceeql has a VERY simple API.  It only outputs to JSON - all query results, exceptions, and errors returns back as JSON, which means that the library is very easy to plug into a REST application.
+Ceeql has a VERY simple API.  It only outputs to JSON, XML, or CSV - all query results, exceptions, and errors returns back as JSON, XML, or CSV, which means that the library is very easy to plug into a REST application.
 
-There are very few methods exposed via the API, and every method returns a JSON string.
+There are very few methods exposed via the API, and every method returns a JSON/XML/CSV string.  By default, all results are returned as JSON.
 
 ### Calling the API
 
@@ -138,6 +138,24 @@ p.close();
 
 ```
 
+### AutoCloseable interface
+
+```java
+
+String query = "INSERT INTO products (name, vendor_id) VALUES (:name, :vendorId)";
+
+Map<String, String> args = new HashMap<String, String>();
+args.put("vendorId", "2");
+args.put("name", "Product name");
+
+try (Seeql p = new Seeql("org.h2.Driver", "jdbc:h2:mem:test", "username", "password")) {
+    String result = p.insert(query, args);
+} catch (Exception e) {
+    e.printStackTrace();
+}
+
+```
+
 ## Template language
 
 Ceeql uses Handlebars templates:
@@ -178,6 +196,22 @@ items = [
     )
 {{/each}}
 ```
+
+## Building
+
+`./gradlew build`
+
+## Testing
+
+`./gradlew test`
+
+__run a single test__:
+
+`./gradlew -Dtest.single=CeeqlCsvTest test`
+
+## Patches
+
+... are welcome!
 
 ## License
 
