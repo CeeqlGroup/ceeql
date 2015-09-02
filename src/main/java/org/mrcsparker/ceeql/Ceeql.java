@@ -1,5 +1,6 @@
 package org.mrcsparker.ceeql;
 
+import com.codahale.metrics.MetricRegistry;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.logging.log4j.LogManager;
@@ -22,7 +23,10 @@ public class Ceeql implements AutoCloseable {
     private boolean isConnected;
     private DBI dbi;
 
-    public Ceeql(String driverName, String url, String username, String password) {
+    private final MetricRegistry metricRegistry;
+
+    public Ceeql(String driverName, String url, String username, String password, MetricRegistry metricRegistry) {
+        this.metricRegistry = metricRegistry;
         this.driverName = driverName;
         this.url = url;
         this.username = username;
@@ -30,6 +34,10 @@ public class Ceeql implements AutoCloseable {
         this.isConnected = false;
 
         connectToDatabase();
+    }
+
+    public Ceeql(String driverName, String url, String username, String password) {
+        this(driverName, url, username, password, null);
     }
 
     public boolean isConnected() {
@@ -155,6 +163,11 @@ public class Ceeql implements AutoCloseable {
             config.setUsername(username);
             config.setPassword(password);
             config.addDataSourceProperty("dataSourceClassName", driverName);
+            config.setPoolName("HikariPool" + "." + url + "." + username);
+
+            if(metricRegistry != null) {
+                config.setMetricRegistry(metricRegistry);
+            }
 
             DataSource ds = new HikariDataSource(config);
 

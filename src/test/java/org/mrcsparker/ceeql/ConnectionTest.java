@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import com.codahale.metrics.MetricRegistry;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -80,5 +81,26 @@ public class ConnectionTest {
             "[{\"price\":100.0000,\"vendor_id\":1,\"name\":\"first\",\"id\":1},{\"price\":200.0000,\"vendor_id\":2,\"name\":\"second\",\"id\":2}]");
 
 
+    }
+
+    @Test
+    public void when_metrics_registry_is_not_provided_connection_should_be_valid() {
+        Ceeql p = new Ceeql("org.h2.Driver", "jdbc:h2:mem:test", "username", "password");
+        assertEquals(p.isConnected(), true);
+        p.close();
+    }
+
+    @Test
+    public void when_metrics_registry_is_provided_connection_should_be_valid() {
+
+        MetricRegistry metricRegistry = new MetricRegistry();
+        Ceeql p = new Ceeql("org.h2.Driver", "jdbc:h2:mem:test", "username", "password", metricRegistry);
+        assertEquals(p.isConnected(), true);
+
+        assertEquals(true,  metricRegistry.getMetrics().containsKey("HikariPool.jdbc:h2:mem:test.username.pool.TotalConnections"));
+        assertEquals(true,  metricRegistry.getMetrics().containsKey("HikariPool.jdbc:h2:mem:test.username.pool.ActiveConnections"));
+        assertEquals(false, metricRegistry.getMetrics().containsKey("HikariPool.jdbc:h2:mem:test.username.pool.NotValidKey"));
+
+        p.close();
     }
 }
