@@ -11,9 +11,9 @@ class CeeqlBatch {
 
     private final static Logger log = LogManager.getLogger(CeeqlBatch.class);
 
-    private Handle dbiHandle;
-    private String sql;
-    private Map<String, String> args;
+    private final Handle dbiHandle;
+    private final String sql;
+    private final Map<String, String> args;
 
     public CeeqlBatch(Handle dbiHandle, String sql, Map<String, String> args) {
         this.dbiHandle = dbiHandle;
