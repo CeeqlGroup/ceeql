@@ -73,4 +73,27 @@ public class CeeqlTemplateTest {
 
         ceeql.close();
     }
+
+    @Test
+    public void should_not_escape_characters_with_default_strategy_template() {
+        Ceeql ceeql = DbCreator.create();
+
+        String sql = new StringBuilder()
+                .append("SELECT {{#each data_list.formula_list}}\n")
+                .append("{{safe this}}{{#unless @last}},{{/unless}}\n")
+                .append("{{/each}}\n")
+                .append("FROM products\n")
+                .toString();
+
+        HashMap<String, String> args = new HashMap<>();
+        args.put("data_list", "{\"formula_list\": [ \"price\", \"vendor_id\", \"name\", \"price > 150\" ] }");
+
+        String output = ceeql.select(sql, args);
+        System.out.println(output);
+        assertEquals(output,
+                "[{\"price > 150\":false,\"price\":100.0000,\"vendor_id\":1,\"name\":\"first\"},{\"price > 150\":true,\"price\":200.0000,\"vendor_id\":2,\"name\":\"second\"},{\"price > 150\":true,\"price\":300.0000,\"vendor_id\":3,\"name\":\"third\"}]");
+
+        ceeql.close();
+    }
 }
+
