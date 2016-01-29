@@ -2,6 +2,7 @@ package org.mrcsparker.ceeql;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
+import com.github.jknack.handlebars.EscapingStrategy;
 import com.github.jknack.handlebars.Handlebars;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,7 +29,13 @@ class CeeqlTemplate {
         }
 
         try {
-            Handlebars handlebars = new Handlebars();
+
+            // We are not escaping the string sequence at this step. By default Handlebars escape a string
+            // sequence using an HTML strategy for characters ( < > " \' ` &). This step is replacing
+            // valid SQL statements characters with their escaped counter part causing queries to fail.
+            // The next step after Handlebars preprocessing is to execute the SQL statement which will be
+            // appropriately escaped because JDBI uses binding of values to avoid any SQL injection attacks.
+            Handlebars handlebars = new Handlebars().with((final CharSequence value) -> value.toString());
             handlebars.registerHelper("safe", new SafeHelper());
             com.github.jknack.handlebars.Template template = handlebars.compileInline(s);
 
