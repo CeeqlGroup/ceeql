@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+
+import static org.hamcrest.core.StringContains.containsString;
 
 public class CeeqlSelectCeeqlJsonTest {
     @Test
@@ -53,6 +56,23 @@ public class CeeqlSelectCeeqlJsonTest {
 
         assertEquals(output,
                 "[{\"price\":100.0000,\"vendor_id\":1,\"name\":\"first\",\"id\":1},{\"price\":200.0000,\"vendor_id\":2,\"name\":\"second\",\"id\":2}]");
+
+        p.close();
+    }
+
+    @Test
+    public void should_return_json_error_message_when_handlebars_query_syntax_cannot_be_parsed() {
+        Ceeql p = DbCreator.create();
+
+        String sql = "select {{#if cols}}{{#each cols}} MIN({{safe this}}) as min_{{safe this}},MAX({{safe this}}) as max_{{safe this}} from {{tablename}};";
+        Map<String, String> args = new HashMap<>();
+        args.put("vendorId1", "1");
+        args.put("vendorId2", "2");
+
+        String output = p.select(sql, args);
+
+        assertThat(output, containsString("[{\"messageType\":\"error\",\"messageSubType\":\"HandlebarsException\",\"timestamp\":"));
+        assertThat(output, containsString(sql));
 
         p.close();
     }

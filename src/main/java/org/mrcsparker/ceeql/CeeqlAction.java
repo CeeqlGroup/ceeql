@@ -2,6 +2,7 @@ package org.mrcsparker.ceeql;
 
 import org.skife.jdbi.v2.Handle;
 
+import java.io.IOException;
 import java.util.Map;
 
 abstract class CeeqlAction {
@@ -9,7 +10,7 @@ abstract class CeeqlAction {
     protected final Map<String, String> args;
     protected final org.skife.jdbi.v2.Update update;
 
-    public CeeqlAction(Handle dbiHandle, String sql, Map<String, String> args) {
+    public CeeqlAction(Handle dbiHandle, String sql, Map<String, String> args) throws IOException {
         this.args = args;
         this.update = CeeqlQuery.create(dbiHandle, CeeqlTemplate.apply(sql, args), args);
     }
