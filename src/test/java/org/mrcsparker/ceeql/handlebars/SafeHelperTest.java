@@ -3,6 +3,8 @@ package org.mrcsparker.ceeql.handlebars;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import org.junit.Test;
+import org.mrcsparker.ceeql.Ceeql;
+import org.mrcsparker.ceeql.DbCreator;
 import org.mrcsparker.ceeql.handlbars.SafeHelper;
 
 import java.io.IOException;
@@ -12,7 +14,7 @@ import static org.junit.Assert.assertEquals;
 public class SafeHelperTest {
     @Test
     public void safeRegistersTest() throws IOException {
-        Handlebars handlebars = new Handlebars();
+        Handlebars handlebars = new Handlebars().with((final CharSequence value) -> value.toString());
         handlebars.registerHelper("safe", new SafeHelper());
         Template template = handlebars.compileInline("{{safe this}}");
 
@@ -22,7 +24,7 @@ public class SafeHelperTest {
 
     @Test
     public void canInsertIntoTest() throws IOException {
-        Handlebars handlebars = new Handlebars();
+        Handlebars handlebars = new Handlebars().with((final CharSequence value) -> value.toString());
         handlebars.registerHelper("safe", new SafeHelper());
         Template template = handlebars.compileInline("{{safe .}}");
 
@@ -33,7 +35,7 @@ public class SafeHelperTest {
 
     @Test
     public void canHandleNumbers() throws IOException {
-        Handlebars handlebars = new Handlebars();
+        Handlebars handlebars = new Handlebars().with((final CharSequence value) -> value.toString());
         handlebars.registerHelper("safe", new SafeHelper());
         Template template = handlebars.compileInline("{{safe .}}");
 
@@ -44,23 +46,12 @@ public class SafeHelperTest {
 
     @Test
     public void handlesQuotesTest() throws IOException {
-        Handlebars handlebars = new Handlebars();
+        Handlebars handlebars = new Handlebars().with((final CharSequence value) -> value.toString());
         handlebars.registerHelper("safe", new SafeHelper());
-        Template template = handlebars.compileInline("{{safe .}}");
+        Template template = handlebars.compileInline("select * from products where name = '{{safe .}}'");
 
-        String name = "'name'";
+        String name = "'foo'";
 
-        assertEquals("&#x27;name&#x27;", template.apply(name));
-    }
-
-    @Test
-    public void handlesSQLInjectionTest() throws IOException {
-        Handlebars handlebars = new Handlebars();
-        handlebars.registerHelper("safe", new SafeHelper());
-        Template template = handlebars.compileInline("{{safe .}}");
-
-        String name = "dataset1; drop table dataset2";
-
-        assertEquals("name", template.apply(name));
+        assertEquals("select * from products where name = '''foo'''", template.apply(name));
     }
 }

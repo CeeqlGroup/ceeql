@@ -4,7 +4,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.mrcsparker.ceeql.model.Product;
 
-class DbCreator {
+public class DbCreator {
 
     private final static Logger log = LogManager.getLogger(DbCreator.class);
 
