@@ -6,7 +6,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.Date;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 class CeeqlError implements ICeeqlMessage {
+
+    private final static Logger log = LogManager.getLogger(CeeqlError.class);
+
     private final long timestamp;
     private String errorType;
     private final String message;
@@ -29,6 +35,7 @@ class CeeqlError implements ICeeqlMessage {
 
     public static String error(Exception e) {
         CeeqlError ceeqlError = new CeeqlError(e.getClass().getSimpleName(), e.getMessage());
+        log.debug("", e);
         return ceeqlError.toJson();
     }
 

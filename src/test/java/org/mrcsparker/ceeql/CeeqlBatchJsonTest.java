@@ -28,7 +28,67 @@ public class CeeqlBatchJsonTest {
                 s.append("  INSERT INTO products(\n");
                 s.append("    name, price, vendor_id\n");
                 s.append("  ) VALUES (\n");
-                s.append("    '{{safe name}}', {{safe price}}, {{safe vendor_id}}\n");
+                s.append("    {{safe name}}, {{safe price}}, {{safe vendor_id}}\n");
+                s.append("  );\n");
+                s.append("{{/each}}\n");
+        String sql = s.toString();
+
+        HashMap<String, String> map = new HashMap<>();
+        map.put("batch", buildJson());
+
+        c.batch(sql, map);
+
+        String output = c.select("SELECT * FROM products", new HashMap<>());
+
+        ObjectMapper mapper = new ObjectMapper();
+        List<ProductDTO> productDTOList = mapper.readValue(output, new TypeReference<List<ProductDTO>>() { });
+
+        assertEquals(buildProducts().size(), productDTOList.size());
+
+        c.close();
+    }
+
+    @Test
+    public void can_insert_batch_named() throws Exception {
+
+        Ceeql c = DbCreator.create(false);
+
+        StringBuilder s = new StringBuilder();
+                s.append("{{#each batch}}\n");
+                s.append("  INSERT INTO products(\n");
+                s.append("    name, price, vendor_id\n");
+                s.append("  ) VALUES (\n");
+                s.append("    :name, :price, :vendor_id\n");
+                s.append("  );\n");
+                s.append("{{/each}}\n");
+        String sql = s.toString();
+
+        HashMap<String, String> map = new HashMap<>();
+        map.put("batch", buildJson());
+
+        c.batch(sql, map);
+
+        String output = c.select("SELECT * FROM products", new HashMap<>());
+
+        ObjectMapper mapper = new ObjectMapper();
+        List<ProductDTO> productDTOList = mapper.readValue(output, new TypeReference<List<ProductDTO>>() { });
+
+        assertEquals(buildProducts().size(), productDTOList.size());
+
+        c.close();
+    }
+
+    @Test
+    public void can_insert_batch_mixed() throws Exception {
+
+        Ceeql c = DbCreator.create(false);
+
+        StringBuilder s = new StringBuilder();
+                s.append("{{#each batch}}\n");
+                s.append("  INSERT INTO products(\n");
+                s.append("    name, price, vendor_id\n");
+                s.append("  ) VALUES (\n");
+                s.append("    :name, {{safe price}}, {{safe vendor_id}}\n");
                 s.append("  );\n");
                 s.append("{{/each}}\n");
         String sql = s.toString();
@@ -50,8 +110,9 @@ public class CeeqlBatchJsonTest {
 
     public List<Product> buildProducts() {
         ArrayList<Product> products = new ArrayList<>();
-        for (int i = 1; i <= 1000; i++) {
-            products.add(new Product("batch" + i, i, i));
+        //for (int i = 1; i <= 1000; i++) {
+        for (int i = 1; i <= 2; i++) {
+        	products.add(new Product("batch" + i, i, i));
         }
 
         return products;

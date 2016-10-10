@@ -3,36 +3,66 @@ package org.mrcsparker.ceeql;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.Template;
+
+import org.mrcsparker.ceeql.handlbars.EachHelper;
 import org.mrcsparker.ceeql.handlbars.SafeHelper;
+import org.mrcsparker.ceeql.jdbi.NamedParameterRewriter.NameList;
+import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.PreparedBatch;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 class CeeqlTemplate {
 
     public static String apply(String s, Map<String, String> args) throws IOException {
 
-        ObjectReader mapper = new ObjectMapper().readerFor(Object.class);
+    	Context ctx = new Context().apply(s, args, false, null);
+        args.putAll(ctx.parameters);
+        return ctx.sql;
+    }
+    
+    
+    public static PreparedBatch apply(String s, Map<String, String> args, Handle dbiHandle) throws IOException {
 
-        HashMap<String, Object> parsedArgs = new HashMap<>();
-        for (Map.Entry<String, String> a : args.entrySet()) {
-            try {
-                parsedArgs.put(a.getKey(), mapper.readValue(a.getValue()));
-            } catch (Exception e) {
-                parsedArgs.put(a.getKey(), a.getValue());
+    	Context ctx = new Context().apply(s, args, true, dbiHandle);
+        args.putAll(ctx.parameters);
+        return ctx.eh.batch;
+    }
+
+    static class Context {
+    	Map<String, String> parameters;
+    	Template template;
+    	EachHelper eh;
+    	String sql;
+
+    	Context apply(String s, Map<String, String> args, boolean isBatch, Handle dbiHandle) throws IOException {
+    		
+    		ObjectReader mapper = new ObjectMapper().readerFor(Object.class);
+
+            HashMap<String, Object> parsedArgs = new HashMap<>();
+            for (Map.Entry<String, String> a : args.entrySet()) {
+                try {
+                    parsedArgs.put(a.getKey(), mapper.readValue(a.getValue()));
+                } catch (Exception e) {
+                    parsedArgs.put(a.getKey(), a.getValue());
+                }
             }
-        }
 
-        // We are not escaping the string sequence at this step. By default Handlebars escape a string
-        // sequence using an HTML strategy for characters ( < > " \' ` &). This step is replacing
-        // valid SQL statements characters with their escaped counter part causing queries to fail.
-        // The next step after Handlebars preprocessing is to execute the SQL statement which will be
-        // appropriately escaped because JDBI uses binding of values to avoid any SQL injection attacks.
-        Handlebars handlebars = new Handlebars().with((final CharSequence value) -> value.toString());
-        handlebars.registerHelper("safe", new SafeHelper());
-        com.github.jknack.handlebars.Template template = handlebars.compileInline(s);
-
-        return template.apply(parsedArgs);
+            Handlebars handlebars = new Handlebars().with((final CharSequence value) -> value.toString());
+            NameList names = new NameList();
+            parameters = new HashMap<String, String>();
+            handlebars.registerHelper("safe", new SafeHelper(parameters, names));
+            eh = new EachHelper(parameters, names, isBatch, dbiHandle);
+            handlebars.registerHelper("each", eh);
+            template = handlebars.compileInline(s);
+            sql = template.apply(parsedArgs);
+            
+            return this;     		
+    	}
     }
 }
