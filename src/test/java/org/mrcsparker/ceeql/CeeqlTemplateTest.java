@@ -1,9 +1,15 @@
 package org.mrcsparker.ceeql;
 
 import org.junit.Test;
+import org.skife.jdbi.v2.ColonPrefixNamedParamStatementRewriter;
+import org.skife.jdbi.v2.tweak.RewrittenStatement;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -35,41 +41,37 @@ public class CeeqlTemplateTest {
     }
 
     @Test
-    public void can_insert_using_each_template() {
+    public void can_insert_using_each_template() throws JsonProcessingException {
         Ceeql ceeql = DbCreator.create();
 
         String sql = new StringBuilder()
-                .append("{{each items}}")
+                .append("{{#each items}}")
                 .append("INSERT INTO products (\n")
                 .append("price, vendor_id, name\n")
                 .append(") VALUES (\n")
                 .append(":price, :vendor_id, :name);")
                 .append("{{/each}}").toString();
 
-        ArrayList<Map<String, String>> argList = new ArrayList<>();
+        List<Map<String, String>> items = new ArrayList<Map<String, String>>();
 
-        Map<String, String> items = new HashMap<>();
-        items.put("price", "1000");
-        items.put("vendor_id", "100");
-        items.put("name", "product_vendor_id_100");
+        Map<String, String> item = new HashMap<>();
+        item.put("price", "1000");
+        item.put("vendor_id", "100");
+        item.put("name", "product_vendor_id_100");
 
-        argList.add(items);
+        items.add(item);
+        
+        item = new HashMap<>();
+        item.put("price", "2000");
+        item.put("vendor_id", "200");
+        item.put("name", "product_vendor_id_200");
 
-        items = new HashMap<>();
-        items.put("price", "2000");
-        items.put("vendor_id", "200");
-        items.put("name", "product_vendor_id_200");
+        items.add(item);
 
-        argList.add(items);
-
-        items = new HashMap<>();
-        items.put("price", "3000");
-        items.put("vendor_id", "300");
-        items.put("name", "product_vendor_id_300");
-
-        argList.add(items);
-
-        //String output = ceeql.insert(sql, argList);
+        Map<String, String> args = new HashMap<String, String>();
+        args.put("items", new ObjectMapper().writeValueAsString(items));
+        
+        String output = ceeql.insert(sql, args);
 
         ceeql.close();
     }
@@ -80,7 +82,7 @@ public class CeeqlTemplateTest {
 
         String sql = new StringBuilder()
                 .append("SELECT {{#each data_list.formula_list}}\n")
-                .append("{{safe this}}{{#unless @last}},{{/unless}}\n")
+                .append("{{this}}{{#unless @last}},{{/unless}}\n")
                 .append("{{/each}}\n")
                 .append("FROM products\n")
                 .toString();
