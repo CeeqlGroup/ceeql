@@ -5,7 +5,7 @@ import org.skife.jdbi.v2.Handle;
 
 class CeeqlHandle implements AutoCloseable {
 
-    private Handle handle;
+    private final Handle handle;
 
     public CeeqlHandle(DBI dbi) {
         this.handle = dbi.open();
