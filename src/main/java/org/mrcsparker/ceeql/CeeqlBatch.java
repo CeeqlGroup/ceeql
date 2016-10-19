@@ -2,9 +2,10 @@ package org.mrcsparker.ceeql;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.skife.jdbi.v2.Batch;
+import org.mrcsparker.ceeql.CeeqlTemplate.Batch;
+//import org.skife.jdbi.v2.Batch;
 import org.skife.jdbi.v2.Handle;
-import org.skife.jdbi.v2.PreparedBatch;
+//import org.skife.jdbi.v2.PreparedBatch;
 
 import java.io.IOException;
 import java.util.Map;
@@ -24,7 +25,7 @@ class CeeqlBatch {
     }
 
     public String exec() throws IOException {
-        PreparedBatch batch = CeeqlTemplate.apply(sql, args, dbiHandle);
+        Batch batch = CeeqlTemplate.apply(sql, args, dbiHandle);
         
         //TODO: not needed for PreparedBatch?
         for (Map.Entry<String, String> arg : args.entrySet()) {

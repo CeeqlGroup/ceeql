@@ -28,13 +28,27 @@ class CeeqlTemplate {
     }
     
     
-    public static PreparedBatch apply(String s, Map<String, String> args, Handle dbiHandle) throws IOException {
+    public static Batch apply(String s, Map<String, String> args, Handle dbiHandle) throws IOException {
 
     	Context ctx = new Context().apply(s, args, true, dbiHandle);
         args.putAll(ctx.parameters);
-        return ctx.eh.batch;
+        return new Batch(ctx.eh);
     }
 
+    static class Batch {
+    	EachHelper eh; 
+    	Batch(EachHelper eh) {this.eh = eh;}
+    	void define (String key, Object value) {
+    		if (eh.batch != null) eh.batch.define(key, value);
+    		else if (eh.npbatch != null) eh.npbatch.define(key, value);
+    	}
+    	int[] execute () {
+    		if (eh.batch != null) return eh.batch.execute();
+    		else if (eh.npbatch != null) return eh.npbatch.execute();
+    		else return null;
+    	}
+    }
+    
     static class Context {
     	Map<String, String> parameters;
     	Template template;
