@@ -7,6 +7,7 @@ import org.skife.jdbi.v2.tweak.RewrittenStatement;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -97,5 +98,28 @@ public class CeeqlTemplateTest {
 
         ceeql.close();
     }
+    
+    //
+    // Custom helpers
+    //
+    
+    @Test
+    public void param_block() throws IOException {
+
+        String sql = new StringBuilder()
+                .append("{{#s}}{{#each drugs}}{{safe this}}{{#unless @last}},{{/unless}}{{/each}}{{/s}}")
+                .toString();
+
+        HashMap<String, String> args = new HashMap<>();
+        args.put("drugs", "[ \"one\", \"two\", \"three\" ]");
+
+        String output = CeeqlTemplate.apply(sql, args);
+        System.out.println(output);
+        assertEquals(
+                "one,two,three",
+        		args.get(output.substring(1)));
+
+    }
+
 }
 

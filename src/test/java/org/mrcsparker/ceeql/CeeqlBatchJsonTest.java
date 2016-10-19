@@ -28,7 +28,7 @@ public class CeeqlBatchJsonTest {
                 s.append("  INSERT INTO products(\n");
                 s.append("    name, price, vendor_id\n");
                 s.append("  ) VALUES (\n");
-                s.append("    {{safe name}}, {{safe price}}, {{safe vendor_id}}\n");
+                s.append("    {{s name}}, {{safe price}}, {{safe vendor_id}}\n");
                 s.append("  );\n");
                 s.append("{{/each}}\n");
         String sql = s.toString();
