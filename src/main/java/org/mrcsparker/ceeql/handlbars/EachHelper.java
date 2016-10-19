@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 
 import org.mrcsparker.ceeql.jdbi.NamedParameterRewriter;
 import org.mrcsparker.ceeql.jdbi.NamedParameterRewriter.NameList;
+import org.skife.jdbi.v2.Batch;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.PreparedBatch;
 import org.skife.jdbi.v2.PreparedBatchPart;
@@ -33,8 +34,10 @@ public class EachHelper implements Helper<Object> {
   private Map<String, String> parameters;
   private Handle dbiHandle;
   private NameList names;
-  public PreparedBatch batch; 
-  public boolean isBatch;
+  public PreparedBatch batch;
+  private String sql;
+  public Batch npbatch; 
+  private boolean isBatch;
   
   public EachHelper(Map<String, String> parameters, NameList names, boolean isBatch, Handle dbiHandle) {
 	this.parameters = parameters;
@@ -70,14 +73,28 @@ public class EachHelper implements Helper<Object> {
         if (isBatch) {
 	        if (index == base) {
 	        	buffer.append(ps.getParsedSql());
-	        	batch = dbiHandle.prepareBatch(ps.getParsedSql());
-	        } 
-	        PreparedBatchPart part = batch.add();
-	        for( Map.Entry<String, String> e: parameters.entrySet()) {
-	        	part.bind(e.getKey(), e.getValue());
+	        	if (parameters != null && parameters.size() > 0) {
+	        		sql = ps.getParsedSql();
+	        		batch = dbiHandle.prepareBatch(sql);
+	        	} else {
+	        		npbatch = dbiHandle.createBatch();
+	        	}
+	        } else {
+	        	if (sql != null && !sql.equals(ps.getParsedSql())) {
+	        		throw new UnsupportedOperationException("Dynamic sql for parameterized batch not supported.");
+	        	}
 	        }
-	        parameters.clear();
-	    	names.rewind();
+	        if (npbatch != null) {
+	        	npbatch.add(ps.getParsedSql());
+	        }
+	        if (batch != null) {
+	        	PreparedBatchPart part = batch.add();
+	        	for( Map.Entry<String, String> e: parameters.entrySet()) {
+	        		part.bind(e.getKey(), e.getValue());
+	        	}
+	        	parameters.clear();
+	        	names.rewind();
+	        }
         } else {
         	buffer.append(ps.getParsedSql());
         	names.reset();
@@ -110,14 +127,28 @@ public class EachHelper implements Helper<Object> {
         if (isBatch) {
 	        if (first) {
 	        	buffer.append(ps.getParsedSql());
-	        	batch = dbiHandle.prepareBatch(ps.getParsedSql());
-	        } 
-	        PreparedBatchPart part = batch.add();
-	        for( Map.Entry<String, String> e: parameters.entrySet()) {
-	        	part.bind(e.getKey(), e.getValue());
+	        	if (parameters != null && parameters.size() > 0) {
+	        		sql = ps.getParsedSql();
+	        		batch = dbiHandle.prepareBatch(sql);
+	        	} else {
+	        		npbatch = dbiHandle.createBatch();
+	        	}
+	        } else {
+	        	if (sql != null && !sql.equals(ps.getParsedSql())) {
+	        		throw new UnsupportedOperationException("Dynamic sql for parameterized batch not supported.");
+	        	}
 	        }
-	        parameters.clear();
-	    	names.rewind();
+	        if (npbatch != null) {
+	        	npbatch.add(ps.getParsedSql());
+	        }
+	        if (batch != null) {
+	        	PreparedBatchPart part = batch.add();
+	        	for( Map.Entry<String, String> e: parameters.entrySet()) {
+	        		part.bind(e.getKey(), e.getValue());
+	        	}
+	        	parameters.clear();
+	        	names.rewind();
+	        }
         } else {
         	buffer.append(ps.getParsedSql());
         	names.reset();

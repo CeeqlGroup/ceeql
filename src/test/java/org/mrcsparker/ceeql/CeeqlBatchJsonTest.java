@@ -19,7 +19,7 @@ public class CeeqlBatchJsonTest {
     private final static Logger log = LogManager.getLogger(CeeqlBatchJsonTest.class);
 
     @Test
-    public void can_insert_batch() throws Exception {
+    public void dynamic_parameterized_not_supported() throws Exception {
 
         Ceeql c = DbCreator.create(false);
 
@@ -36,14 +36,16 @@ public class CeeqlBatchJsonTest {
         HashMap<String, String> map = new HashMap<>();
         map.put("batch", buildJson());
 
-        c.batch(sql, map);
+        assertEquals(true, c.batch(sql, map).contains("Dynamic sql for parameterized batch not supported"));
 
-        String output = c.select("SELECT * FROM products", new HashMap<>());
-
-        ObjectMapper mapper = new ObjectMapper();
-        List<ProductDTO> productDTOList = mapper.readValue(output, new TypeReference<List<ProductDTO>>() { });
-
-        assertEquals(buildProducts().size(), productDTOList.size());
+//        String output = c.select("SELECT * FROM products", new HashMap<>());
+//
+//        assertEquals("[{\"price\":1.0000,\"vendor_id\":1,\"name\":\"batch1\",\"id\":1},{\"price\":2.0000,\"vendor_id\":2,\"name\":\"batch2\",\"id\":2}]", output);
+//        		
+//        ObjectMapper mapper = new ObjectMapper();
+//        List<ProductDTO> productDTOList = mapper.readValue(output, new TypeReference<List<ProductDTO>>() { });
+//
+//        assertEquals(buildProducts().size(), productDTOList.size());
 
         c.close();
     }
@@ -70,6 +72,8 @@ public class CeeqlBatchJsonTest {
 
         String output = c.select("SELECT * FROM products", new HashMap<>());
 
+        assertEquals("[{\"price\":1.0000,\"vendor_id\":1,\"name\":\"batch1\",\"id\":1},{\"price\":2.0000,\"vendor_id\":2,\"name\":\"batch2\",\"id\":2}]", output);
+
         ObjectMapper mapper = new ObjectMapper();
         List<ProductDTO> productDTOList = mapper.readValue(output, new TypeReference<List<ProductDTO>>() { });
 
@@ -79,7 +83,7 @@ public class CeeqlBatchJsonTest {
     }
 
     @Test
-    public void can_insert_batch_mixed() throws Exception {
+    public void can_insert_mixed_parameters() throws Exception {
 
         Ceeql c = DbCreator.create(false);
 
@@ -88,7 +92,7 @@ public class CeeqlBatchJsonTest {
                 s.append("  INSERT INTO products(\n");
                 s.append("    name, price, vendor_id\n");
                 s.append("  ) VALUES (\n");
-                s.append("    :name, {{safe price}}, {{safe vendor_id}}\n");
+                s.append("    :name, {{s price}}, {{s vendor_id}}\n");
                 s.append("  );\n");
                 s.append("{{/each}}\n");
         String sql = s.toString();
@@ -99,6 +103,40 @@ public class CeeqlBatchJsonTest {
         c.batch(sql, map);
 
         String output = c.select("SELECT * FROM products", new HashMap<>());
+
+        assertEquals("[{\"price\":1.0000,\"vendor_id\":1,\"name\":\"batch1\",\"id\":1},{\"price\":2.0000,\"vendor_id\":2,\"name\":\"batch2\",\"id\":2}]", output);
+
+        ObjectMapper mapper = new ObjectMapper();
+        List<ProductDTO> productDTOList = mapper.readValue(output, new TypeReference<List<ProductDTO>>() { });
+
+        assertEquals(buildProducts().size(), productDTOList.size());
+
+        c.close();
+    }
+
+    @Test
+    public void can_insert_pure_dynamic() throws Exception {
+
+        Ceeql c = DbCreator.create(false);
+
+        StringBuilder s = new StringBuilder();
+                s.append("{{#each batch}}\n");
+                s.append("  INSERT INTO products(\n");
+                s.append("    name, price, vendor_id\n");
+                s.append("  ) VALUES (\n");
+                s.append("    '{{safe name}}', {{safe price}}, {{safe vendor_id}}\n");
+                s.append("  );\n");
+                s.append("{{/each}}\n");
+        String sql = s.toString();
+
+        HashMap<String, String> map = new HashMap<>();
+        map.put("batch", buildJson());
+
+        c.batch(sql, map);
+
+        String output = c.select("SELECT * FROM products", new HashMap<>());
+
+        assertEquals("[{\"price\":1.0000,\"vendor_id\":1,\"name\":\"batch1\",\"id\":1},{\"price\":2.0000,\"vendor_id\":2,\"name\":\"batch2\",\"id\":2}]", output);
 
         ObjectMapper mapper = new ObjectMapper();
         List<ProductDTO> productDTOList = mapper.readValue(output, new TypeReference<List<ProductDTO>>() { });
