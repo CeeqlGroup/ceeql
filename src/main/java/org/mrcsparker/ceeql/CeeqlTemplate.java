@@ -6,6 +6,7 @@ import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 
 import org.mrcsparker.ceeql.handlbars.EachHelper;
+import org.mrcsparker.ceeql.handlbars.ParamHelper;
 import org.mrcsparker.ceeql.handlbars.SafeHelper;
 import org.mrcsparker.ceeql.jdbi.NamedParameterRewriter.NameList;
 import org.skife.jdbi.v2.Handle;
@@ -56,7 +57,8 @@ class CeeqlTemplate {
             Handlebars handlebars = new Handlebars().with((final CharSequence value) -> value.toString());
             NameList names = new NameList();
             parameters = new HashMap<String, String>();
-            handlebars.registerHelper("safe", new SafeHelper(parameters, names));
+            handlebars.registerHelper("safe", new SafeHelper());
+            handlebars.registerHelper("s", new ParamHelper(parameters, names));
             eh = new EachHelper(parameters, names, isBatch, dbiHandle);
             handlebars.registerHelper("each", eh);
             template = handlebars.compileInline(s);
