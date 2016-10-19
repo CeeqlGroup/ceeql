@@ -37,7 +37,7 @@ Add this to your `<dependencies>` section:
 <dependency>
     <groupId>org.mrcsparker</groupId>
     <artifactId>ceeql</artifactId>
-    <version>0.8.4</version>
+    <version>0.9.2</version>
 </dependency>
 ```
 
@@ -52,12 +52,12 @@ There are very few methods exposed via the API, and every method returns a JSON/
 ```java
 
 // Make a database connection, and open a connection pool
-Seeql p = new Seeql(
+Ceeql p = new Ceeql(
     // jdbc driver
     "org.h2.Driver",
     // jdbc url		
     "jdbc:h2:mem:test",		
-    "username", 
+    "username",
     "password");
 
 // Create a argument list that you want to pass to the query
@@ -87,7 +87,7 @@ String query = "SELECT id, name FROM products WHERE vendor_id = :vendorId";
 Map<String, String> args = new HashMap<String, String>();
 args.put("vendorId", "2");
 
-Seeql p = new Seeql("org.h2.Driver", "jdbc:h2:mem:test", "username", "password");
+Ceeql p = new Ceeql("org.h2.Driver", "jdbc:h2:mem:test", "username", "password");
 
 String result = p.select(query, args);
 
@@ -104,7 +104,7 @@ String query = "SELECT id, name FROM products WHERE vendor_id = :vendorId";
 Map<String, String> args = new HashMap<String, String>();
 args.put("vendorId", "2");
 
-Seeql p = new Seeql("org.h2.Driver", "jdbc:h2:mem:test", "username", "password");
+Ceeql p = new Ceeql("org.h2.Driver", "jdbc:h2:mem:test", "username", "password");
 
 String result = p.selectOne(query, args);
 
@@ -122,7 +122,7 @@ Map<String, String> args = new HashMap<String, String>();
 args.put("vendorId", "2");
 args.put("name", "Product name");
 
-Seeql p = new Seeql("org.h2.Driver", "jdbc:h2:mem:test", "username", "password");
+Ceeql p = new Ceeql("org.h2.Driver", "jdbc:h2:mem:test", "username", "password");
 
 String result = p.insert(query, args);
 
@@ -140,7 +140,7 @@ Map<String, String> args = new HashMap<String, String>();
 args.put("vendorId", "2");
 args.put("name", "New Name");
 
-Seeql p = new Seeql("org.h2.Driver", "jdbc:h2:mem:test", "username", "password");
+Ceeql p = new Ceeql("org.h2.Driver", "jdbc:h2:mem:test", "username", "password");
 
 String result = p.update(query, args);
 
@@ -157,7 +157,7 @@ String query = "DELETE FROM products WHERE vendor_id = :vendorId";
 Map<String, String> args = new HashMap<String, String>();
 args.put("vendorId", "2");
 
-Seeql p = new Seeql("org.h2.Driver", "jdbc:h2:mem:test", "username", "password");
+Ceeql p = new Ceeql("org.h2.Driver", "jdbc:h2:mem:test", "username", "password");
 
 String result = p.delete(query, args);
 
@@ -175,7 +175,7 @@ Map<String, String> args = new HashMap<String, String>();
 args.put("vendorId", "2");
 args.put("name", "Product name");
 
-try (Seeql p = new Seeql("org.h2.Driver", "jdbc:h2:mem:test", "username", "password")) {
+try (Ceeql p = new Ceeql("org.h2.Driver", "jdbc:h2:mem:test", "username", "password")) {
     String result = p.insert(query, args);
 } catch (Exception e) {
     e.printStackTrace();
@@ -185,16 +185,16 @@ try (Seeql p = new Seeql("org.h2.Driver", "jdbc:h2:mem:test", "username", "passw
 
 ## Template language
 
-Ceeql uses Handlebars templates:
+Ceeql uses Handlebars templates.  The Handlebars templates do not get
+applied at runtime - they are compiled before the query is passed to
+the query engine.
 
 ```sql
-
 SELECT * FROM products
 WHERE name = :name
 {{#if vendor_id}}
     AND vendor_id = :vendor_id
 {{/if}}
-
 ```
 
 For example, you can loop over data:
@@ -219,10 +219,13 @@ items = [
     INSERT INTO table (
         name, price, vendor_id
     ) VALUES (
-        '{{safe name}}', {{safe price}}, {{safe vendor_id}} 
+        {{s name}}, {{s price}}, {{s vendor_id}}
     )
 {{/each}}
 ```
+
+`{{s name}}` dynamically binds variables in the `each` loop.  You would use it
+the same way that you would use `?` in a JDBC query.
 
 ## Building
 
@@ -245,4 +248,3 @@ __run a single test__:
 Ceeql is licensed under the GNU LGPL 3.  This means that you can use the library in
 your proprietary applications.  Any changes you make to Ceeql need to be shared with
 the rest of the community.
-
