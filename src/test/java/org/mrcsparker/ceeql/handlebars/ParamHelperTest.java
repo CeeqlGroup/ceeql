@@ -73,4 +73,16 @@ public class ParamHelperTest {
         assertEquals("dataset1; drop table dataset2", parameters.get(template.apply(name).substring(1)));
     }
 
+    @Test
+    public void identifierTest() throws IOException {
+        Handlebars handlebars = new Handlebars();
+        Map<String, String> parameters = new HashMap<String, String>();
+        handlebars.registerHelper("s", new ParamHelper(parameters, new NameList()));
+        Template template = handlebars.compileInline("{{s . \"identifier\"}}");
+
+        String name = "tablename";
+
+        assertEquals("tablename", template.apply(name));
+    }
+
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
+import com.github.jknack.handlebars.helper.StringHelpers;
 
 import org.mrcsparker.ceeql.handlbars.EachHelper;
 import org.mrcsparker.ceeql.handlbars.ParamHelper;
@@ -23,6 +24,14 @@ class CeeqlTemplate {
     public static String apply(String s, Map<String, String> args) throws IOException {
 
     	Context ctx = new Context().apply(s, args, false, null);
+        args.putAll(ctx.parameters);
+        return ctx.sql;
+    }
+    
+    //Testing support
+    static String apply(String s, Map<String, String> args, Map<String, String> parameters, NameList names) throws IOException {
+
+    	Context ctx = new Context().apply(s, args, false, null, parameters, names);
         args.putAll(ctx.parameters);
         return ctx.sql;
     }
@@ -56,6 +65,10 @@ class CeeqlTemplate {
     	String sql;
 
     	Context apply(String s, Map<String, String> args, boolean isBatch, Handle dbiHandle) throws IOException {
+    		return apply(s, args, isBatch, dbiHandle, new HashMap<String, String>(), new NameList());
+    	}
+    	
+    	Context apply(String s, Map<String, String> args, boolean isBatch, Handle dbiHandle, Map<String, String> parameters, NameList names) throws IOException {
     		
     		ObjectReader mapper = new ObjectMapper().readerFor(Object.class);
 
@@ -69,8 +82,10 @@ class CeeqlTemplate {
             }
 
             Handlebars handlebars = new Handlebars().with((final CharSequence value) -> value.toString());
-            NameList names = new NameList();
-            parameters = new HashMap<String, String>();
+            //NameList names = new NameList();
+            //parameters = new HashMap<String, String>();
+            this.parameters = parameters;
+            StringHelpers.register(handlebars);
             handlebars.registerHelper("safe", new SafeHelper());
             handlebars.registerHelper("s", new ParamHelper(parameters, names));
             eh = new EachHelper(parameters, names, isBatch, dbiHandle);
