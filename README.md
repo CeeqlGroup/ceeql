@@ -12,7 +12,7 @@ Ceeql is a small, simple Java library that maps SQL queries to JSON, XML, or CSV
 
 ## Code Status
 
-[![Build Status](https://travis-ci.org/mrcsparker/ceeql.svg?branch=master)](https://travis-ci.org/mrcsparker/ceeql)
+[![alt text](https://travis-ci.org/mrcsparker/ceeql.svg?branch=master "Build Status")](https://travis-ci.org/mrcsparker/ceeql)
 
 ## Install
 
@@ -52,7 +52,7 @@ There are very few methods exposed via the API, and every method returns a JSON/
 ```java
 
 // Make a database connection, and open a connection pool
-Seeql p = new Seeql(
+Ceeql p = new Ceeql(
     // jdbc driver
     "org.h2.Driver",
     // jdbc url		
@@ -87,7 +87,7 @@ String query = "SELECT id, name FROM products WHERE vendor_id = :vendorId";
 Map<String, String> args = new HashMap<String, String>();
 args.put("vendorId", "2");
 
-Seeql p = new Seeql("org.h2.Driver", "jdbc:h2:mem:test", "username", "password");
+Ceeql p = new Ceeql("org.h2.Driver", "jdbc:h2:mem:test", "username", "password");
 
 String result = p.select(query, args);
 
@@ -104,7 +104,7 @@ String query = "SELECT id, name FROM products WHERE vendor_id = :vendorId";
 Map<String, String> args = new HashMap<String, String>();
 args.put("vendorId", "2");
 
-Seeql p = new Seeql("org.h2.Driver", "jdbc:h2:mem:test", "username", "password");
+Ceeql p = new Ceeql("org.h2.Driver", "jdbc:h2:mem:test", "username", "password");
 
 String result = p.selectOne(query, args);
 
@@ -122,7 +122,7 @@ Map<String, String> args = new HashMap<String, String>();
 args.put("vendorId", "2");
 args.put("name", "Product name");
 
-Seeql p = new Seeql("org.h2.Driver", "jdbc:h2:mem:test", "username", "password");
+Ceeql p = new Ceeql("org.h2.Driver", "jdbc:h2:mem:test", "username", "password");
 
 String result = p.insert(query, args);
 
@@ -140,7 +140,7 @@ Map<String, String> args = new HashMap<String, String>();
 args.put("vendorId", "2");
 args.put("name", "New Name");
 
-Seeql p = new Seeql("org.h2.Driver", "jdbc:h2:mem:test", "username", "password");
+Ceeql p = new Ceeql("org.h2.Driver", "jdbc:h2:mem:test", "username", "password");
 
 String result = p.update(query, args);
 
@@ -157,7 +157,7 @@ String query = "DELETE FROM products WHERE vendor_id = :vendorId";
 Map<String, String> args = new HashMap<String, String>();
 args.put("vendorId", "2");
 
-Seeql p = new Seeql("org.h2.Driver", "jdbc:h2:mem:test", "username", "password");
+Ceeql p = new Ceeql("org.h2.Driver", "jdbc:h2:mem:test", "username", "password");
 
 String result = p.delete(query, args);
 
@@ -175,12 +175,36 @@ Map<String, String> args = new HashMap<String, String>();
 args.put("vendorId", "2");
 args.put("name", "Product name");
 
-try (Seeql p = new Seeql("org.h2.Driver", "jdbc:h2:mem:test", "username", "password")) {
+try (Ceeql p = new Ceeql("org.h2.Driver", "jdbc:h2:mem:test", "username", "password")) {
     String result = p.insert(query, args);
 } catch (Exception e) {
     e.printStackTrace();
 }
 
+```
+
+### Batch queries
+
+Batch queries are either Parameterized or Dynamic. 
+Parameterized batch templates must result in the same sql for all iterations in the batch collection. 
+Dynamic batch templates can't use any parameters and should result in a unique sql statement for every iteration of the batch.
+It is therefore not recommended to use Dynamic batches without proper security measures.  
+
+```java
+StringBuilder s = new StringBuilder();
+    s.append("{{#each batch}}\n");
+    s.append("  INSERT INTO products(\n");
+    s.append("    name, price, vendor_id\n");
+    s.append("  ) VALUES (\n");
+    s.append("    :name, :price, :vendor_id\n");
+    s.append("  );\n");
+    s.append("{{/each}}\n");
+String sql = s.toString();
+
+HashMap<String, String> map = new HashMap<>();
+map.put("batch", buildJson());
+
+c.batch(sql, map);
 ```
 
 ## Template language
@@ -213,7 +237,6 @@ items = [
     }
 ]
 ```
-
 ```sql
 #{{each items}}
     INSERT INTO table (
@@ -223,6 +246,108 @@ items = [
     )
 {{/each}}
 ```
+
+### Helpers
+
+[Handlebars.java](https://jknack.github.io/handlebars.java/helpers.html) for an overview of helpers.
+
+Variable helper:
+```sql
+  {{name context? [argument]* [hash]*}}
+```
+
+Section helper:
+```sql
+  {{#name context? [argument]* [hash]*}}  
+  ...  
+  {{/name}}
+```
+
+Subexpression helper:
+```sql
+  {{... (name context? [argument]* [hash]*)}}
+```
+
+#### Built-in helpers:
+
+* concat
+```sql
+  {{concat context? [argument]* [separator=""]}}
+```
+  Joins context and arguments with separator. All lists are automatically transformed into a CSV string.
+* each
+```sql
+  {{#each context?}}
+```
+* eq
+```sql
+  {{eq context? [argument]*}}
+```
+  Returns the first argument that equals the context or empty otherwise.
+* identifier
+```sql
+  {{identifier context?}}
+```
+  Only accepts a resulting CSV input of 1-3 level dotted ``[a-zA-Z_]\w*`` optionally quoted using ' or ". 
+* if (alias: t)
+```sql
+  {{if context? [then] [else]}}
+```
+* join 
+```sql
+  {{join context? [argument]* separator [prefix=""] [suffix=""]}}
+```
+* number
+```sql
+  {{number context?}}
+```
+  Only accepts a resulting CSV input of integers.
+* parameter (alias: s)
+```sql
+  {{parameter context?}}
+```
+* safe
+```sql
+  {{safe context?}}
+  Deprecated: see parameter.
+```
+* unless (alias: f)
+```sql
+  {{unless context? [then] [else]}}
+```
+* with
+```sql
+  {{#with context?}}
+```
+
+## Security
+
+Care should be taken to use parameters whenever possible. 
+The safe helper should no longer be used. 
+Filtering or switched values should be used for templates manipulating syntactic sql tokens.
+Service level authorization should be used when possible (out of scope).
+
+## Idioms
+
+* Default value
+```sql
+  {{f value 1}}
+```
+* Limit input
+```sql
+  {{t value "one" "two" "thee"}}
+```
+* Identifiers  
+  Note: Although the following will prevent sql injection, it must also be properly service authorized.
+```sql
+  select {{identifier columns}} from {{identifier table}}
+```
+* Numbers  
+  Note: Although the following will prevent sql injection, it must also be properly service authorized.
+```sql
+  select column from table where id in ({{number ids}})
+```
+
 
 ## Building
 

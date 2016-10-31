@@ -6,7 +6,7 @@ import com.github.jknack.handlebars.Template;
 import org.junit.Test;
 import org.mrcsparker.ceeql.Ceeql;
 import org.mrcsparker.ceeql.CeeqlTemplate;
-import org.mrcsparker.ceeql.handlbars.ParamHelper;
+import org.mrcsparker.ceeql.handlbars.ParameterHelper;
 import org.mrcsparker.ceeql.jdbi.NamedParameterRewriter.NameList;
 
 import java.io.IOException;
@@ -25,7 +25,7 @@ public class IntegrationTest {
                 .append("{{#s}}{{join drugs \",\"}}{{/s}}")
                 .toString();
 
-        HashMap<String, String> args = new HashMap<>();
+        Map<String, String> args = new HashMap<>();
         args.put("drugs", "[ \"one\", \"two\", \"three\" ]");
 
         String output = CeeqlTemplate.apply(sql, args);
@@ -48,10 +48,10 @@ public class IntegrationTest {
     @Test
     public void identifierTest() throws IOException {
         String sql = new StringBuilder()
-                .append("select {{s (join columns \",\") \"identifier\"}} from {{s table \"identifier\"}}")
+                .append("select {{identifier (join columns \",\")}} from {{identifier table}}")
                 .toString();
 
-        HashMap<String, String> args = new HashMap<>();
+        Map<String, String> args = new HashMap<>();
         args.put("columns", "[ \"one\", \"two\", \"three\" ]");
         args.put("table", "database.table");
 
@@ -62,7 +62,7 @@ public class IntegrationTest {
         		output);
 
         sql = new StringBuilder()
-                .append("select {{s columns \"identifier\"}} from {{s table \"identifier\"}}")
+                .append("select {{identifier columns}} from {{identifier table}}")
                 .toString();
 
         args = new HashMap<>();
@@ -78,13 +78,13 @@ public class IntegrationTest {
     }
 
     @Test
-    public void inTest() throws IOException {
+    public void listTest() throws IOException {
         String sql = new StringBuilder()
-                .append("select * from table where column in ({{s ids \"in\"}})")
+                .append("select * from table where column in ({{s keys}})")
                 .toString();
 
-        HashMap<String, String> args = new HashMap<>();
-        args.put("ids", "[ \"one\", \"two\", \"three\" ]");
+        Map<String, String> args = new HashMap<>();
+        args.put("keys", "[ \"one\", \"two\", \"three\" ]");
 
         Map<String, String> parameters = new HashMap<String, String>();
         NameList names = new NameList(new String[]{"p1","p2","p3"});
@@ -94,6 +94,22 @@ public class IntegrationTest {
         assertEquals(
                 "select * from table where column in (:p1,:p2,:p3)",
         		output);
+
+        sql = new StringBuilder()
+                .append("select * from table where column in ({{number ids}})")
+                .toString();
+
+        args = new HashMap<>();
+        args.put("ids", "[ 1, 2, 3 ]");
+
+        parameters = new HashMap<String, String>();
+        names = new NameList();
+        
+        output = CeeqlTemplate.apply(sql, args, parameters, names);
+        System.out.println(output);
+        assertEquals(
+                "select * from table where column in (1,2,3)",
+        		output);        
     }
 
 }

@@ -50,10 +50,14 @@ public class NamedParameterRewriter
 	    	if (in != null && !in.isEmpty()) {
 	    		name = in.remove(0);
 	        } else {
-	        	name = "s"+UUID.randomUUID().toString().replace("-", "");
+	        	name = next();
 	        	if (out != null) out.add(name);
 	        }
 	    	return name;
+	    }
+
+	    protected String next() {
+	    	return "s"+UUID.randomUUID().toString().replace("-", "");
 	    }
 	    
 	    public void rewind() {

@@ -2,13 +2,16 @@ package org.mrcsparker.ceeql;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
+import com.github.jknack.handlebars.EscapingStrategy;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.helper.StringHelpers;
 
+import org.mrcsparker.ceeql.handlbars.ConditionalHelper;
 import org.mrcsparker.ceeql.handlbars.EachHelper;
-import org.mrcsparker.ceeql.handlbars.ParamHelper;
-import org.mrcsparker.ceeql.handlbars.SafeHelper;
+import org.mrcsparker.ceeql.handlbars.FilterHelper;
+import org.mrcsparker.ceeql.handlbars.ParameterHelper;
+import org.mrcsparker.ceeql.handlbars.StringHelper;
 import org.mrcsparker.ceeql.jdbi.NamedParameterRewriter.NameList;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.PreparedBatch;
@@ -81,15 +84,14 @@ class CeeqlTemplate {
                 }
             }
 
-            Handlebars handlebars = new Handlebars().with((final CharSequence value) -> value.toString());
-            //NameList names = new NameList();
-            //parameters = new HashMap<String, String>();
+            Handlebars handlebars = new Handlebars().with(EscapingStrategy.NOOP);
             this.parameters = parameters;
+            StringHelper.register(handlebars);
             StringHelpers.register(handlebars);
-            handlebars.registerHelper("safe", new SafeHelper());
-            handlebars.registerHelper("s", new ParamHelper(parameters, names));
-            eh = new EachHelper(parameters, names, isBatch, dbiHandle);
-            handlebars.registerHelper("each", eh);
+            FilterHelper.register(handlebars);
+            ConditionalHelper.register(handlebars);
+            new ParameterHelper(parameters, names).registerHelper(handlebars);
+            eh = new EachHelper(parameters, names, isBatch, dbiHandle).registerHelper(handlebars);
             template = handlebars.compileInline(s);
             sql = template.apply(parsedArgs);
             
