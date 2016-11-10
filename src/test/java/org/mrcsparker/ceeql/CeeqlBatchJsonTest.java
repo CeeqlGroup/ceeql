@@ -38,15 +38,6 @@ public class CeeqlBatchJsonTest {
 
         assertEquals(true, c.batch(sql, map).contains("Dynamic sql for parameterized batch not supported"));
 
-//        String output = c.select("SELECT * FROM products", new HashMap<>());
-//
-//        assertEquals("[{\"price\":1.0000,\"vendor_id\":1,\"name\":\"batch1\",\"id\":1},{\"price\":2.0000,\"vendor_id\":2,\"name\":\"batch2\",\"id\":2}]", output);
-//        		
-//        ObjectMapper mapper = new ObjectMapper();
-//        List<ProductDTO> productDTOList = mapper.readValue(output, new TypeReference<List<ProductDTO>>() { });
-//
-//        assertEquals(buildProducts().size(), productDTOList.size());
-
         c.close();
     }
 

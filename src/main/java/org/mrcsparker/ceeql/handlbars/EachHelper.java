@@ -16,6 +16,7 @@ import org.skife.jdbi.v2.PreparedBatch;
 import org.skife.jdbi.v2.PreparedBatchPart;
 
 import com.github.jknack.handlebars.Context;
+import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Options;
 import com.github.jknack.handlebars.Template;
@@ -163,5 +164,15 @@ public class EachHelper implements Helper<Object> {
     }
     return options.buffer();
   }
+
+	private String[] aliases() {
+		return new String[] {NAME};
+	}
+
+    public EachHelper registerHelper(final Handlebars handlebars) {
+    	for (String name: aliases())
+    		handlebars.registerHelper(name, this);
+    	return this;
+    }
 
 }

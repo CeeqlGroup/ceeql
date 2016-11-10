@@ -16,6 +16,7 @@ import com.github.jknack.handlebars.Context;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -38,15 +39,25 @@ public class NamedParameterRewriter
 		private List<String> in =  new ArrayList<String>();
 	    private List<String> out = new ArrayList<String>();
 
+	    public NameList() {}
+	    
+	    public NameList(String[] names) {
+	    	in.addAll(Arrays.asList(names));
+	    }
+	    
 	    public String getName() {
 	        String name = null;
 	    	if (in != null && !in.isEmpty()) {
 	    		name = in.remove(0);
 	        } else {
-	        	name = "s"+UUID.randomUUID().toString().replace("-", "");
+	        	name = next();
 	        	if (out != null) out.add(name);
 	        }
 	    	return name;
+	    }
+
+	    protected String next() {
+	    	return "s"+UUID.randomUUID().toString().replace("-", "");
 	    }
 	    
 	    public void rewind() {
@@ -56,6 +67,7 @@ public class NamedParameterRewriter
 	    public void reset() {
 	    	out.clear();
 	    }
+	    
 	}
 	
 	public static ParsedStatement parseString(final String sql, Map<String, String> parameters, NameList names, Context itCtx) throws IllegalArgumentException
