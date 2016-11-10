@@ -37,7 +37,7 @@ Add this to your `<dependencies>` section:
 <dependency>
     <groupId>org.mrcsparker</groupId>
     <artifactId>ceeql</artifactId>
-    <version>0.8.4</version>
+    <version>0.9.2</version>
 </dependency>
 ```
 
@@ -57,7 +57,7 @@ Ceeql p = new Ceeql(
     "org.h2.Driver",
     // jdbc url		
     "jdbc:h2:mem:test",		
-    "username", 
+    "username",
     "password");
 
 // Create a argument list that you want to pass to the query
@@ -242,7 +242,7 @@ items = [
     INSERT INTO table (
         name, price, vendor_id
     ) VALUES (
-        '{{safe name}}', {{safe price}}, {{safe vendor_id}} 
+        {{s name}}, {{s price}}, {{s vendor_id}}
     )
 {{/each}}
 ```
@@ -370,4 +370,3 @@ __run a single test__:
 Ceeql is licensed under the GNU LGPL 3.  This means that you can use the library in
 your proprietary applications.  Any changes you make to Ceeql need to be shared with
 the rest of the community.
-
